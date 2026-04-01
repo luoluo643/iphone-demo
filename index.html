@@ -261,15 +261,21 @@
         visibility: hidden;
       }
 
-      /* 锁屏默认状态：可见 */
+      /* 锁屏默认状态：待命（隐藏，由 is-active 控制显示） */
       .lock-view {
         transform: scale(1);
         opacity: 1;
         transition:
           transform 480ms cubic-bezier(.32,0,.67,0),
           opacity 480ms cubic-bezier(.32,0,.67,0);
-        visibility: visible;
         z-index: 2;
+      }
+
+      /* 锁屏激活 */
+      .lock-view.is-active {
+        visibility: visible;
+        transform: scale(1);
+        opacity: 1;
       }
 
       /* 锁屏退出：缩小淡出 */
@@ -281,6 +287,14 @@
           transform 480ms cubic-bezier(.32,0,.67,0),
           opacity 480ms cubic-bezier(.32,0,.67,0),
           visibility 0s 480ms;
+      }
+
+      /* 锁屏在下方（主屏激活时）：彻底隐藏 */
+      .lock-view.is-below {
+        transform: scale(1);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 300ms ease, visibility 0s 300ms;
       }
 
       /* 主屏默认：从下方待命 */
