@@ -550,103 +550,123 @@
         background: rgba(255, 255, 255, 0.12);
       }
 
-      .home-widgets {
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 12px;
+      /* ── 状态栏 ── */
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px 6px;
+        flex-shrink: 0;
       }
 
+      .status-time {
+        font-size: 0.94rem;
+        font-weight: 600;
+        color: #fff;
+        background: transparent;
+      }
+
+      .status-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      /* ── 图标网格 ── */
       .icon-grid {
-        margin-top: 18px;
+        padding: 20px 22px 0;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 18px 12px;
+        gap: 24px 0;
       }
 
       .app-icon {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
+        gap: 5px;
         background: transparent;
         color: #fff;
+        padding: 0;
       }
 
       .icon-tile {
-        width: 62px;
-        height: 62px;
-        border-radius: 19px;
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        font-size: 1.36rem;
-        box-shadow: var(--icon-shadow);
-        transition: transform 180ms ease, box-shadow 180ms ease;
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        transition: transform 120ms ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      .app-icon:hover .icon-tile,
-      .control-button:hover,
-      .status-action:hover,
-      .status-time:hover,
-      .unlock-cta:hover,
-      .quick-tile:hover,
-      .library-pill:hover,
-      .dock-icon:hover,
-      .gesture-bar:hover,
-      .segmented-button:hover {
-        transform: translateY(-2px);
+      .icon-tile svg {
+        width: 60px;
+        height: 60px;
+        display: block;
       }
 
-      .icon-messages { background: linear-gradient(135deg, #6e84ff, #7ed0ff); }
-      .icon-music { background: linear-gradient(135deg, #ff6a77, #ffbe74); }
-      .icon-camera { background: linear-gradient(135deg, #1b2740, #6d7a98); }
-      .icon-maps { background: linear-gradient(135deg, #5fd48a, #31b6b1); }
-      .icon-notes { background: linear-gradient(135deg, #ffe27a, #f3a645); color: #5c3815; }
-      .icon-health { background: linear-gradient(135deg, #ff7da8, #f14b76); }
-      .icon-gallery { background: linear-gradient(135deg, #cc90ff, #ff78b9); }
-      .icon-browser { background: linear-gradient(135deg, #77b8ff, #6c7aff); }
-      .icon-phone { background: linear-gradient(135deg, #46e28e, #36b96e); }
-      .icon-mail { background: linear-gradient(135deg, #7bd5ff, #427fff); }
-      .icon-fitness { background: linear-gradient(135deg, #ff7ca6, #f64e7c); }
-      .icon-files { background: linear-gradient(135deg, #b7c7ff, #7f95ff); }
+      .app-icon:active .icon-tile {
+        transform: scale(0.88);
+      }
 
       .app-name {
-        font-size: 0.8rem;
+        font-size: 0.72rem;
+        font-weight: 400;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        text-align: center;
+        max-width: 68px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
+      /* ── Dock ── */
       .dock {
-        margin-top: 24px;
-        padding: 12px 14px;
-        border-radius: 30px;
+        position: absolute;
+        bottom: 28px;
+        left: 12px;
+        right: 12px;
+        padding: 12px 16px;
+        border-radius: 26px;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(30px) saturate(1.8);
+        -webkit-backdrop-filter: blur(30px) saturate(1.8);
+        border: 1px solid rgba(255,255,255,0.22);
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
+        gap: 0;
       }
 
       .dock-icon {
         background: transparent;
+        display: flex;
+        justify-content: center;
+        padding: 0;
       }
 
-      .search-pill {
-        margin-top: 14px;
-        width: 100%;
-        border-radius: 18px;
-        padding: 14px 18px;
-        color: rgba(255, 255, 255, 0.82);
-        text-align: left;
+      .dock-icon .icon-tile {
+        width: 58px;
+        height: 58px;
       }
 
+      /* 手势条 */
       .gesture-wrap {
-        margin-top: 14px;
+        position: absolute;
+        bottom: 8px;
+        left: 0; right: 0;
         display: flex;
         justify-content: center;
       }
 
       .gesture-bar {
-        width: 136px;
+        width: 134px;
         height: 5px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.88);
+        background: rgba(255,255,255,0.88);
+        pointer-events: none;
       }
 
       .library-view {
@@ -1137,77 +1157,119 @@
             </section>
 
             <section class="view home-view" data-view="home">
+              <!-- 状态栏 -->
               <header class="status-bar">
-                <button class="status-time" data-demo-action="lock">09:41</button>
+                <span class="status-time" id="homeTime">09:41</span>
                 <div class="status-actions">
+                  <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".35"/></svg>
+                  <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8 2.5c2.3 0 4.3 1 5.7 2.6L15 3.8C13.2 1.8 10.7.7 8 .7S2.8 1.8 1 3.8l1.3 1.3C3.7 3.5 5.7 2.5 8 2.5z"/><path d="M8 5.5c1.5 0 2.8.6 3.8 1.6l1.3-1.3C11.7 4.4 9.9 3.5 8 3.5S4.3 4.4 2.9 5.8l1.3 1.3C5.2 6.1 6.5 5.5 8 5.5z"/><circle cx="8" cy="10" r="1.5"/></svg>
+                  <svg width="26" height="12" viewBox="0 0 26 12" fill="white"><rect x="0" y="1" width="22" height="10" rx="2.5" stroke="white" stroke-width="1.2" fill="none"/><rect x="1.5" y="2.5" width="17" height="7" rx="1.5" fill="white"/><rect x="23" y="3.5" width="2.5" height="5" rx="1.2" fill="white" opacity=".45"/></svg>
                 </div>
               </header>
 
-              <section class="home-widgets">
-                <article class="widget-card">
-                  <p class="widget-label">今日摘要</p>
-                  <h3>天气 / 日程 / 待办</h3>
-                  <p style="margin-top:8px;">2 个会议，1 个设计确认，电量充足。</p>
-                </article>
-                <article class="widget-card">
-                  <p class="widget-label">播放中</p>
-                  <h3>City Pop</h3>
-                  <p style="margin-top:8px;">低噪音工作歌单</p>
-                </article>
-              </section>
-
+              <!-- 图标网格 -->
               <section class="icon-grid">
                 <button class="app-icon" data-app="messages" type="button">
-                  <span class="icon-tile icon-messages">M</span>
+                  <span class="icon-tile icon-messages">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#msg)"/><defs><linearGradient id="msg" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#5AC8FA"/><stop offset="1" stop-color="#1877F2"/></linearGradient></defs><path d="M30 12C19.5 12 11 19.6 11 29c0 5 2.4 9.5 6.3 12.6L16 48l6.8-3.4C24.5 45.2 27.2 46 30 46c10.5 0 19-7.6 19-17S40.5 12 30 12z" fill="white"/><path d="M22 27.5h16M22 33h10" stroke="#1877F2" stroke-width="2.5" stroke-linecap="round"/></svg>
+                  </span>
                   <span class="app-name">消息</span>
                 </button>
-                <button class="app-icon" data-app="music" type="button">
-                  <span class="icon-tile icon-music">♪</span>
-                  <span class="app-name">音乐</span>
-                </button>
                 <button class="app-icon" data-app="camera" type="button">
-                  <span class="icon-tile icon-camera">◉</span>
+                  <span class="icon-tile icon-camera">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="#1C1C1E"/><circle cx="30" cy="31" r="11" stroke="#555" stroke-width="2.5"/><circle cx="30" cy="31" r="7" fill="#2C2C2E"/><circle cx="30" cy="31" r="4.5" fill="#3A3A3C"/><circle cx="42" cy="19" r="2" fill="#555"/></svg>
+                  </span>
                   <span class="app-name">相机</span>
                 </button>
                 <button class="app-icon" data-app="maps" type="button">
-                  <span class="icon-tile icon-maps">↗</span>
+                  <span class="icon-tile icon-maps">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#map)"/><defs><linearGradient id="map" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#34C759"/><stop offset="1" stop-color="#30B0C7"/></linearGradient></defs><path d="M12 44l12-8 12 8 12-28-12 8-12-8-12 28z" fill="white" opacity=".9"/><circle cx="36" cy="22" r="3" fill="white"/></svg>
+                  </span>
                   <span class="app-name">地图</span>
                 </button>
+                <button class="app-icon" data-app="music" type="button">
+                  <span class="icon-tile icon-music">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#mus)"/><defs><linearGradient id="mus" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#FC3C44"/><stop offset="1" stop-color="#FF6B6B"/></linearGradient></defs><circle cx="30" cy="30" r="13" fill="white" opacity=".15"/><circle cx="30" cy="30" r="8" fill="white" opacity=".25"/><circle cx="30" cy="30" r="4" fill="white"/></svg>
+                  </span>
+                  <span class="app-name">音乐</span>
+                </button>
                 <button class="app-icon" data-app="notes" type="button">
-                  <span class="icon-tile icon-notes">N</span>
+                  <span class="icon-tile icon-notes">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="#FFCC00"/><rect x="14" y="16" width="32" height="4" rx="2" fill="#1C1C1E"/><rect x="14" y="26" width="32" height="3" rx="1.5" fill="#1C1C1E" opacity=".6"/><rect x="14" y="34" width="22" height="3" rx="1.5" fill="#1C1C1E" opacity=".6"/><rect x="14" y="42" width="16" height="3" rx="1.5" fill="#1C1C1E" opacity=".4"/></svg>
+                  </span>
                   <span class="app-name">备忘录</span>
                 </button>
                 <button class="app-icon" data-app="health" type="button">
-                  <span class="icon-tile icon-health">♥</span>
+                  <span class="icon-tile icon-health">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="white"/><path d="M30 44s-16-10-16-20a9 9 0 0118 0 9 9 0 0118 0c0 10-20 20-20 20z" fill="url(#hrt)"/><defs><linearGradient id="hrt" x1="14" y1="14" x2="46" y2="46"><stop stop-color="#FF2D55"/><stop offset="1" stop-color="#FF6B81"/></linearGradient></defs></svg>
+                  </span>
                   <span class="app-name">健康</span>
                 </button>
                 <button class="app-icon" data-app="gallery" type="button">
-                  <span class="icon-tile icon-gallery">✦</span>
+                  <span class="icon-tile icon-gallery">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="white"/><g transform="translate(30,30)"><line x1="0" y1="-14" x2="0" y2="-8" stroke="#FF9500" stroke-width="3.5" stroke-linecap="round"/><line x1="9.9" y1="-9.9" x2="5.7" y2="-5.7" stroke="#FFCC00" stroke-width="3.5" stroke-linecap="round"/><line x1="14" y1="0" x2="8" y2="0" stroke="#34C759" stroke-width="3.5" stroke-linecap="round"/><line x1="9.9" y1="9.9" x2="5.7" y2="5.7" stroke="#30D158" stroke-width="3.5" stroke-linecap="round"/><line x1="0" y1="14" x2="0" y2="8" stroke="#32ADE6" stroke-width="3.5" stroke-linecap="round"/><line x1="-9.9" y1="9.9" x2="-5.7" y2="5.7" stroke="#5AC8FA" stroke-width="3.5" stroke-linecap="round"/><line x1="-14" y1="0" x2="-8" y2="0" stroke="#007AFF" stroke-width="3.5" stroke-linecap="round"/><line x1="-9.9" y1="-9.9" x2="-5.7" y2="-5.7" stroke="#AF52DE" stroke-width="3.5" stroke-linecap="round"/></g><circle cx="30" cy="30" r="5" fill="#FF9500"/></svg>
+                  </span>
                   <span class="app-name">照片</span>
                 </button>
                 <button class="app-icon" data-app="files" type="button">
-                  <span class="icon-tile icon-files">▣</span>
+                  <span class="icon-tile icon-files">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#fil)"/><defs><linearGradient id="fil" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#5AC8FA"/><stop offset="1" stop-color="#007AFF"/></linearGradient></defs><rect x="13" y="22" width="34" height="24" rx="4" fill="white" opacity=".9"/><rect x="13" y="16" width="18" height="10" rx="4" fill="white"/></svg>
+                  </span>
                   <span class="app-name">文件</span>
                 </button>
+                <button class="app-icon" data-app="browser" type="button">
+                  <span class="icon-tile icon-browser">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#saf)"/><defs><linearGradient id="saf" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#1C1C1E"/><stop offset="1" stop-color="#2C2C2E"/></linearGradient></defs><circle cx="30" cy="30" r="16" stroke="#555" stroke-width="1.5"/><line x1="30" y1="14" x2="30" y2="46" stroke="#555" stroke-width="1.2"/><line x1="14" y1="30" x2="46" y2="30" stroke="#555" stroke-width="1.2"/><path d="M37 23l-10 4-4 10 10-4 4-10z" fill="#FF3B30"/><path d="M37 23l-10 4-4 10 10-4 4-10z" fill="none" stroke="white" stroke-width=".5"/><circle cx="30" cy="30" r="2" fill="white"/></svg>
+                  </span>
+                  <span class="app-name">Safari</span>
+                </button>
+                <button class="app-icon" data-app="notes" type="button">
+                  <span class="icon-tile" style="background:linear-gradient(135deg,#1C1C1E,#3A3A3C)">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#cal)"/><defs><linearGradient id="cal" x1="0" y1="0" x2="0" y2="60"><stop stop-color="#FF3B30"/><stop offset="0.15" stop-color="#FF3B30"/><stop offset="0.15" stop-color="white"/><stop offset="1" stop-color="white"/></linearGradient></defs><text x="30" y="22" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="-apple-system,sans-serif">4月</text><text x="30" y="46" text-anchor="middle" fill="#1C1C1E" font-size="22" font-weight="300" font-family="-apple-system,sans-serif">2</text></svg>
+                  </span>
+                  <span class="app-name">日历</span>
+                </button>
+                <button class="app-icon" data-app="health" type="button">
+                  <span class="icon-tile" style="background:linear-gradient(135deg,#1C1C1E,#2C2C2E)">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="#1C1C1E"/><rect x="14" y="14" width="14" height="14" rx="3" fill="#FF9500"/><rect x="32" y="14" width="14" height="14" rx="3" fill="#34C759"/><rect x="14" y="32" width="14" height="14" rx="3" fill="#007AFF"/><rect x="32" y="32" width="14" height="14" rx="3" fill="#FF2D55"/></svg>
+                  </span>
+                  <span class="app-name">应用库</span>
+                </button>
+                <button class="app-icon" data-app="mail" type="button">
+                  <span class="icon-tile icon-mail">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#mail)"/><defs><linearGradient id="mail" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#5AC8FA"/><stop offset="1" stop-color="#007AFF"/></linearGradient></defs><rect x="11" y="18" width="38" height="26" rx="4" fill="white" opacity=".9"/><path d="M11 22l19 13 19-13" stroke="url(#mail)" stroke-width="2.5" stroke-linecap="round"/></svg>
+                  </span>
+                  <span class="app-name">邮件</span>
+                </button>
               </section>
 
-              <section class="dock">
+              <!-- Dock -->
+              <div class="dock">
                 <button class="dock-icon app-icon" data-app="phone" type="button">
-                  <span class="icon-tile icon-phone">☎</span>
+                  <span class="icon-tile icon-phone">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#ph)"/><defs><linearGradient id="ph" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#34C759"/><stop offset="1" stop-color="#30B050"/></linearGradient></defs><path d="M20 14h8l3 8-4.5 2.5c1.5 4 5 7.5 9 9L38 29l8 3v8c0 3-2 5-5 5C21 45 14 24 14 19c0-3 2-5 6-5z" fill="white"/></svg>
+                  </span>
+                </button>
+                <button class="dock-icon app-icon" data-app="messages" type="button">
+                  <span class="icon-tile icon-messages">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#msg2)"/><defs><linearGradient id="msg2" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#5AC8FA"/><stop offset="1" stop-color="#1877F2"/></linearGradient></defs><path d="M30 12C19.5 12 11 19.6 11 29c0 5 2.4 9.5 6.3 12.6L16 48l6.8-3.4C24.5 45.2 27.2 46 30 46c10.5 0 19-7.6 19-17S40.5 12 30 12z" fill="white"/></svg>
+                  </span>
                 </button>
                 <button class="dock-icon app-icon" data-app="browser" type="button">
-                  <span class="icon-tile icon-browser">◎</span>
-                </button>
-                <button class="dock-icon app-icon" data-app="mail" type="button">
-                  <span class="icon-tile icon-mail">@</span>
+                  <span class="icon-tile icon-browser">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#saf2)"/><defs><linearGradient id="saf2" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#1C1C1E"/><stop offset="1" stop-color="#2C2C2E"/></linearGradient></defs><circle cx="30" cy="30" r="16" stroke="#555" stroke-width="1.5"/><line x1="30" y1="14" x2="30" y2="46" stroke="#555" stroke-width="1.2"/><line x1="14" y1="30" x2="46" y2="30" stroke="#555" stroke-width="1.2"/><path d="M37 23l-10 4-4 10 10-4 4-10z" fill="#FF3B30"/><circle cx="30" cy="30" r="2" fill="white"/></svg>
+                  </span>
                 </button>
                 <button class="dock-icon app-icon" data-app="music" type="button">
-                  <span class="icon-tile icon-music">♪</span>
+                  <span class="icon-tile icon-music">
+                    <svg viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="13" fill="url(#mus2)"/><defs><linearGradient id="mus2" x1="0" y1="0" x2="60" y2="60"><stop stop-color="#FC3C44"/><stop offset="1" stop-color="#FF6B6B"/></linearGradient></defs><circle cx="30" cy="30" r="13" fill="white" opacity=".15"/><circle cx="30" cy="30" r="8" fill="white" opacity=".25"/><circle cx="30" cy="30" r="4" fill="white"/></svg>
+                  </span>
                 </button>
-              </section>
+              </div>
 
+              <!-- 手势条 -->
               <div class="gesture-wrap">
-                <button class="gesture-bar" data-demo-view="home" type="button" aria-label="回到主屏"></button>
+                <div class="gesture-bar"></div>
               </div>
             </section>
 
@@ -1355,19 +1417,16 @@
       function refreshTime() {
         const now = new Date();
         const timeStr = timeFormatter.format(now);
-        // 锁屏时间
         const lockTimeEl = document.getElementById("lockTime");
         if (lockTimeEl) lockTimeEl.textContent = timeStr;
-        // 锁屏日期
         const lockDateEl = document.getElementById("lockDate");
         if (lockDateEl) {
           lockDateEl.textContent = new Intl.DateTimeFormat("zh-CN", {
             weekday: "long", month: "long", day: "numeric"
           }).format(now);
         }
-        // 主屏状态栏
-        const homeTime = document.querySelector(".home-view .status-time");
-        if (homeTime) homeTime.textContent = timeStr;
+        const homeTimeEl = document.getElementById("homeTime");
+        if (homeTimeEl) homeTimeEl.textContent = timeStr;
       }
 
       function setView(name) {
