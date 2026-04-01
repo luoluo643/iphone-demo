@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>消息 App Demo</title>
+  <style>
+    :root {
+      --qq-blue: #12B7F5;
+      --qq-blue-dark: #0E9FD8;
+      --bg: #EDEDED;
+      --bg-dark: #1a1a1a;
+      --panel: #fff;
+      --text: #1a1a1a;
+      --text-soft: #888;
+      --bubble-out: #95EC69;
+      --bubble-in: #fff;
+      --nav-h: 56px;
+      --status-h: 44px;
+      --header-h: 52px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: #c8c8c8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    button { border: 0; background: none; cursor: pointer; font: inherit; }
+
+    /* ── Phone Shell ── */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #111;
+      border-radius: 50px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.45), inset 0 0 0 1px #333;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .dynamic-island {
+      position: absolute;
+      top: 12px; left: 50%;
+      transform: translateX(-50%);
+      width: 120px; height: 32px;
+      background: #000;
+      border-radius: 999px;
+      z-index: 100;
+    }
+    .status-bar {
+      height: var(--status-h);
+      background: var(--qq-blue);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 20px 6px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+    .status-bar .time { font-size: 15px; font-weight: 700; }
+    .status-icons { display: flex; gap: 6px; align-items: center; }
+
+    /* ── Screens ── */
+    .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; background: var(--bg); }
+    .screen.active { display: flex; }
+
+    /* ── Header ── */
+    .header {
+      height: var(--header-h);
+      background: var(--qq-blue);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .header h2 { font-size: 17px; font-weight: 600; flex: 1; }
+    .header-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; opacity: 0.9; }
+
+    /* ── Bottom Nav ── */
+    .bottom-nav {
+      height: var(--nav-h);
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      flex-shrink: 0;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #999;
+      font-size: 10px;
+      transition: color .15s;
+    }
+    .nav-item.active { color: var(--qq-blue); }
+    .nav-item svg { width: 24px; height: 24px; }
+    .nav-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      background: #f00;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+    }
+    .nav-icon-wrap { position: relative; }
+
+    /* ══════════════════════════════
+       消息列表
+    ══════════════════════════════ */
+    .msg-list { flex: 1; overflow-y: auto; }
+    .msg-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .msg-item:active { background: #f5f5f5; }
+    .avatar {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      position: relative;
+    }
+    .avatar-online::after {
+      content: '';
+      position: absolute;
+      bottom: 1px; right: 1px;
+      width: 10px; height: 10px;
+      background: #4cd964;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+    .msg-info { flex: 1; min-width: 0; }
+    .msg-name-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .msg-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .msg-time { font-size: 11px; color: var(--text-soft); }
+    .msg-preview { font-size: 13px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unread-dot {
+      width: 18px; height: 18px;
+      background: #f00;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .search-bar {
+      padding: 8px 12px;
+      background: var(--qq-blue);
+    }
+    .search-input {
+      width: 100%;
+      height: 32px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      padding: 0 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.7); }
+
+    /* ══════════════════════════════
+       聊天界面
+    ══════════════════════════════ */
+    .chat-header {
+      height: var(--header-h);
+      background: var(--qq-blue);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .chat-header .chat-name { font-size: 16px; font-weight: 600; flex: 1; }
+    .chat-header .chat-status { font-size: 11px; opacity: 0.8; }
+    .back-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #EDEDED;
+    }
+    .chat-date {
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      background: rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 2px 10px;
+      align-self: center;
+    }
+    .msg-row { display: flex; gap: 8px; align-items: flex-end; }
+    .msg-row.out { flex-direction: row-reverse; }
+    .msg-avatar { width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
+    .bubble {
+      max-width: 220px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+    }
+    .msg-row.in .bubble { background: var(--bubble-in); border-radius: 2px 12px 12px 12px; }
+    .msg-row.out .bubble { background: var(--bubble-out); border-radius: 12px 2px 12px 12px; }
+    .bubble-img { width: 140px; height: 100px; border-radius: 8px; object-fit: cover; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .msg-sender { font-size: 11px; color: #888; margin-bottom: 3px; }
+    .chat-input-area {
+      background: #f7f7f7;
+      border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .chat-input-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      gap: 8px;
+    }
+    .chat-input-box {
+      flex: 1;
+      min-height: 36px;
+      max-height: 90px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: #fff;
+      padding: 7px 10px;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      line-height: 1.4;
+    }
+    .send-btn {
+      background: var(--qq-blue);
+      color: #fff;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .chat-toolbar {
+      display: flex;
+      padding: 4px 12px 10px;
+      gap: 18px;
+    }
+    .tool-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #666; font-size: 10px; }
+    .tool-btn svg { width: 26px; height: 26px; }
+
+    /* ══════════════════════════════
+       个人主页
+    ══════════════════════════════ */
+    .profile-cover {
+      height: 180px;
+      background: linear-gradient(135deg, #12B7F5 0%, #0066cc 100%);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .profile-cover-edit {
+      position: absolute;
+      bottom: 10px; right: 14px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      border-radius: 14px;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+    .profile-avatar-wrap {
+      position: absolute;
+      bottom: -30px; left: 20px;
+    }
+    .profile-avatar {
+      width: 64px; height: 64px;
+      border-radius: 14px;
+      border: 3px solid #fff;
+      background: #f5a623;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .profile-body { flex: 1; overflow-y: auto; background: #EDEDED; }
+    .profile-info-card {
+      background: #fff;
+      margin: 40px 0 10px;
+      padding: 14px 20px 16px;
+    }
+    .profile-name { font-size: 20px; font-weight: 700; }
+    .profile-id { font-size: 12px; color: #999; margin-top: 3px; }
+    .profile-bio { font-size: 13px; color: #555; margin-top: 8px; line-height: 1.5; }
+    .profile-stats {
+      display: flex;
+      margin-top: 14px;
+      gap: 0;
+    }
+    .stat-item { flex: 1; text-align: center; }
+    .stat-num { font-size: 18px; font-weight: 700; color: var(--text); }
+    .stat-label { font-size: 11px; color: #999; margin-top: 2px; }
+    .stat-divider { width: 1px; background: #eee; }
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .profile-btn {
+      flex: 1;
+      height: 36px;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .profile-btn.primary { background: var(--qq-blue); color: #fff; }
+    .profile-btn.secondary { background: #f0f0f0; color: #333; }
+    .profile-section {
+      background: #fff;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      padding: 12px 16px 8px;
+      font-size: 13px;
+      color: #999;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .profile-menu-item {
+      display: flex;
+      align-items: center;
+      padding: 13px 16px;
+      border-top: 1px solid #f5f5f5;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .profile-menu-item:active { background: #f5f5f5; }
+    .menu-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .menu-label { flex: 1; font-size: 15px; }
+    .menu-arrow { color: #ccc; font-size: 16px; }
+
+    /* ══════════════════════════════
+       通话界面
+    ══════════════════════════════ */
+    .call-screen {
+      background: linear-gradient(180deg, #1a2a4a 0%, #0d1a30 100%);
+      color: #fff;
+    }
+    .call-bg {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 20px;
+      position: relative;
+    }
+    .call-avatar {
+      width: 90px; height: 90px;
+      border-radius: 20px;
+      background: #f5a623;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 0 0 8px rgba(255,255,255,0.08), 0 0 0 16px rgba(255,255,255,0.04);
+      margin-bottom: 16px;
+    }
+    .call-name { font-size: 24px; font-weight: 700; }
+    .call-status { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 6px; }
+    .call-timer { font-size: 18px; color: rgba(255,255,255,0.8); margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .call-video-area {
+      width: 100%;
+      flex: 1;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.2);
+      font-size: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .call-self-preview {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      width: 80px; height: 110px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .call-controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .call-ctrl-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.8);
+      font-size: 11px;
+    }
+    .call-ctrl-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .call-ctrl-icon.active { background: rgba(255,255,255,0.25); }
+    .call-end-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .call-end-btn {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .call-end-btn.end { background: #ff3b30; }
+    .call-end-btn.accept { background: #34c759; }
+
+    /* ══════════════════════════════
+       联系人页
+    ══════════════════════════════ */
+    .contacts-list { flex: 1; overflow-y: auto; }
+    .contact-group-label {
+      padding: 6px 16px;
+      font-size: 12px;
+      color: #999;
+      background: #EDEDED;
+      font-weight: 600;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #f5f5f5;
+      cursor: pointer;
+    }
+    .contact-item:active { background: #f5f5f5; }
+    .contact-info { flex: 1; }
+    .contact-name { font-size: 15px; font-weight: 500; }
+    .contact-sign { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .back-to-home {
+      position: fixed;
+      top: 12px; left: 12px;
+      z-index: 999;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 14px 6px 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      backdrop-filter: blur(8px);
+      text-decoration: none;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 0; }
+  </style>
+</head>
+<body>
+<a class="back-to-home" href="index.html">◀ 返回</a>
+<div class="phone">
+  <div class="dynamic-island"></div>
+
+  <!-- 状态栏 -->
+  <div class="status-bar" id="statusBar">
+    <span class="time" id="clockTime">9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="white"><path d="M7.5 2.5C9.8 2.5 11.8 3.5 13.2 5.1L14.5 3.8C12.7 1.8 10.2.7 7.5.7S2.3 1.8.5 3.8L1.8 5.1C3.2 3.5 5.2 2.5 7.5 2.5z"/><path d="M7.5 5.5c1.5 0 2.8.6 3.8 1.6L12.6 5.8C11.2 4.4 9.4 3.5 7.5 3.5S3.8 4.4 2.4 5.8L3.7 7.1c1-1 2.3-1.6 3.8-1.6z"/><circle cx="7.5" cy="10" r="1.5"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="white"><rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="white"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white" opacity=".5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ 消息列表页 ══ -->
+  <div class="screen active" id="screen-msg">
+    <div class="header">
+      <a href="index.html" style="color:#fff;display:flex;align-items:center;margin-right:8px;opacity:0.9;text-decoration:none;font-size:13px;">◀ 主页</a>
+      <h2>消息</h2>
+      <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></div>
+      <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+    </div>
+    <div class="search-bar"><input class="search-input" placeholder="搜索" /></div>
+    <div class="msg-list" id="msgList"></div>
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="showScreen('msg',this)">
+        <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg><span class="nav-badge" id="totalBadge">3</span></div>消息
+      </button>
+      <button class="nav-item" onclick="showScreen('contacts',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>联系人
+      </button>
+      <button class="nav-item" onclick="showScreen('profile',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>我
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ 联系人页 ══ -->
+  <div class="screen" id="screen-contacts">
+    <div class="header">
+      <h2>联系人</h2>
+      <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+    </div>
+    <div class="contacts-list" id="contactsList"></div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('msg',this)">
+        <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg></div>消息
+      </button>
+      <button class="nav-item active" onclick="showScreen('contacts',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>联系人
+      </button>
+      <button class="nav-item" onclick="showScreen('profile',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>我
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ 聊天界面 ══ -->
+  <div class="screen" id="screen-chat">
+    <div class="chat-header">
+      <button class="back-btn" onclick="showScreen('msg')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div style="flex:1">
+        <div class="chat-name" id="chatName">小明</div>
+        <div class="chat-status" id="chatStatus">在线</div>
+      </div>
+      <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="5" r="1.5" fill="white"/><circle cx="12" cy="12" r="1.5" fill="white"/><circle cx="12" cy="19" r="1.5" fill="white"/></svg></div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <button style="color:#888;font-size:20px">🎤</button>
+        <textarea class="chat-input-box" id="chatInput" rows="1" placeholder="发送消息..."></textarea>
+        <button style="color:#888;font-size:20px">😊</button>
+        <button style="color:#888;font-size:20px">➕</button>
+        <button class="send-btn" id="sendBtn" style="display:none" onclick="sendMessage()">发送</button>
+      </div>
+      <div class="chat-toolbar">
+        <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>图片</button>
+        <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.8"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>视频</button>
+        <button class="tool-btn" onclick="showScreen('call')"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>语音</button>
+        <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>转账</button>
+        <button class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>位置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 通话界面 ══ -->
+  <div class="screen call-screen" id="screen-call">
+    <div class="chat-header" style="background:transparent">
+      <button class="back-btn" onclick="showScreen('chat')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="chat-name">视频通话</div>
+    </div>
+    <div class="call-bg">
+      <div class="call-avatar" id="callAvatar">😊</div>
+      <div class="call-name" id="callName">小明</div>
+      <div class="call-status">通话中</div>
+      <div class="call-timer" id="callTimer">00:00</div>
+      <div class="call-video-area"><span>对方视频画面</span><div class="call-self-preview">🤳</div></div>
+      <div class="call-controls">
+        <button class="call-ctrl-btn"><div class="call-ctrl-icon">🔇</div>静音</button>
+        <button class="call-ctrl-btn"><div class="call-ctrl-icon">📷</div>摄像头</button>
+        <button class="call-ctrl-btn"><div class="call-ctrl-icon">🔊</div>扬声器</button>
+        <button class="call-ctrl-btn"><div class="call-ctrl-icon">⋯</div>更多</button>
+      </div>
+      <div class="call-end-row">
+        <button class="call-end-btn end" onclick="showScreen('chat')">📵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 个人主页 ══ -->
+  <div class="screen" id="screen-profile">
+    <div style="flex:1;overflow-y:auto;background:#EDEDED">
+      <div class="profile-cover">
+        <button class="profile-cover-edit">编辑封面</button>
+        <div class="profile-avatar-wrap"><div class="profile-avatar">我</div></div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-info-card">
+          <div class="profile-name">我的昵称</div>
+          <div class="profile-id">QQ号：123456789</div>
+          <div class="profile-bio">这个人很懒，什么都没有留下。</div>
+          <div class="profile-stats">
+            <div class="stat-item"><div class="stat-num">128</div><div class="stat-label">动态</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item"><div class="stat-num">356</div><div class="stat-label">关注</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item"><div class="stat-num">1.2k</div><div class="stat-label">粉丝</div></div>
+          </div>
+          <div class="profile-actions">
+            <button class="profile-btn primary">编辑资料</button>
+            <button class="profile-btn secondary">分享名片</button>
+          </div>
+        </div>
+        <div class="profile-section">
+          <div class="section-title">功能</div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#fff0e6">🌟</div><div class="menu-label">我的收藏</div><span class="menu-arrow">›</span></div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#e8f4ff">📁</div><div class="menu-label">我的文件</div><span class="menu-arrow">›</span></div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#fff0f0">❤️</div><div class="menu-label">我的关注</div><span class="menu-arrow">›</span></div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#f0fff0">🎮</div><div class="menu-label">游戏中心</div><span class="menu-arrow">›</span></div>
+        </div>
+        <div class="profile-section">
+          <div class="section-title">设置</div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#f5f5f5">⚙️</div><div class="menu-label">设置</div><span class="menu-arrow">›</span></div>
+          <div class="profile-menu-item"><div class="menu-icon" style="background:#f5f5f5">🔒</div><div class="menu-label">隐私</div><span class="menu-arrow">›</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="showScreen('msg',this)">
+        <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg></div>消息
+      </button>
+      <button class="nav-item" onclick="showScreen('contacts',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>联系人
+      </button>
+      <button class="nav-item active" onclick="showScreen('profile',this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>我
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const contacts = [
+  { id:1, name:'小明', emoji:'😊', color:'#FF6B6B', sign:'今天天气真好', online:true },
+  { id:2, name:'小红', emoji:'🌸', color:'#FF9FF3', sign:'努力学习中...', online:true },
+  { id:3, name:'大壮', emoji:'💪', color:'#54A0FF', sign:'健身打卡第30天', online:false },
+  { id:4, name:'小李', emoji:'🎵', color:'#5F27CD', sign:'音乐是我的生命', online:true },
+  { id:5, name:'工作群', emoji:'💼', color:'#00B894', sign:'', online:false, isGroup:true },
+  { id:6, name:'家庭群', emoji:'🏠', color:'#FDCB6E', sign:'', online:false, isGroup:true },
+];
+const conversations = {
+  1:{ unread:2, messages:[{from:'in',text:'你好啊！',time:'10:20'},{from:'out',text:'嗨！最近怎么样？',time:'10:21'},{from:'in',text:'还不错，你呢？',time:'10:22'},{from:'out',text:'挺好的，最近在忙项目',time:'10:23'},{from:'in',text:'加油！有什么需要帮忙的吗？',time:'10:24'},{from:'in',text:'对了，周末有空吗？',time:'10:25'}]},
+  2:{ unread:0, messages:[{from:'in',text:'作业写完了吗？',time:'昨天'},{from:'out',text:'还没呢，好难😭',time:'昨天'},{from:'in',text:'我们一起吧！',time:'昨天'}]},
+  3:{ unread:1, messages:[{from:'in',text:'兄弟，一起去健身吗？',time:'周一'},{from:'out',text:'好啊！几点？',time:'周一'},{from:'in',text:'下午五点怎么样',time:'周一'}]},
+  4:{ unread:0, messages:[{from:'in',text:'[音乐分享] 这首歌超好听',time:'周日'},{from:'out',text:'发来听听！',time:'周日'}]},
+  5:{ unread:5, messages:[{from:'in',name:'小明',text:'明天开会几点？',time:'11:00'},{from:'in',name:'小红',text:'@大家 下午三点',time:'11:02'},{from:'out',text:'收到',time:'11:03'}]},
+  6:{ unread:0, messages:[{from:'in',name:'妈妈',text:'今天回家吃饭吗？',time:'12:00'},{from:'out',text:'回的！',time:'12:01'}]},
+};
+const times=['刚刚','10:25','昨天','周一','周日','3天前'];
+const previews={1:'对了，周末有空吗？',2:'我们一起吧！',3:'下午五点怎么样',4:'[音乐分享] 这首歌超好听',5:'@大家 下午三点',6:'回的！'};
+let currentChatId=null, callSeconds=0, callInterval=null;
+
+function renderMsgList(){
+  document.getElementById('msgList').innerHTML=contacts.map((c,i)=>`
+    <div class="msg-item" onclick="openChat(${c.id})">
+      <div class="avatar ${c.online?'avatar-online':''}" style="background:${c.color}">${c.emoji}</div>
+      <div class="msg-info">
+        <div class="msg-name-row"><span class="msg-name">${c.name}</span><span class="msg-time">${times[i]}</span></div>
+        <div class="msg-preview">${previews[c.id]}</div>
+      </div>
+      ${conversations[c.id].unread?`<div class="unread-dot">${conversations[c.id].unread}</div>`:''}
+    </div>`).join('');
+  const total=Object.values(conversations).reduce((s,v)=>s+v.unread,0);
+  const b=document.getElementById('totalBadge');
+  if(b){b.textContent=total;b.style.display=total?'flex':'none';}
+}
+
+function renderContacts(){
+  const groups=[{label:'好友',items:contacts.filter(c=>!c.isGroup)},{label:'群聊',items:contacts.filter(c=>c.isGroup)}];
+  document.getElementById('contactsList').innerHTML=groups.map(g=>`
+    <div class="contact-group-label">${g.label}</div>
+    ${g.items.map(c=>`<div class="contact-item" onclick="openChat(${c.id})">
+      <div class="avatar" style="background:${c.color};width:42px;height:42px;border-radius:8px;font-size:18px">${c.emoji}</div>
+      <div class="contact-info"><div class="contact-name">${c.name}</div>${c.sign?`<div class="contact-sign">${c.sign}</div>`:''}</div>
+    </div>`).join('')}`).join('');
+}
+
+function openChat(id){
+  currentChatId=id;
+  const c=contacts.find(x=>x.id===id);
+  document.getElementById('chatName').textContent=c.name;
+  document.getElementById('chatStatus').textContent=c.online?'在线':'离线';
+  document.getElementById('callName').textContent=c.name;
+  document.getElementById('callAvatar').textContent=c.emoji;
+  conversations[id].unread=0;
+  renderMsgList();
+  renderMessages(id);
+  showScreen('chat');
+}
+
+function renderMessages(id){
+  const box=document.getElementById('chatMessages');
+  const c=contacts.find(x=>x.id===id);
+  box.innerHTML='<div class="chat-date">今天</div>'+conversations[id].messages.map(m=>`
+    <div class="msg-row ${m.from}">
+      ${m.from==='in'?`<div class="msg-avatar" style="background:${c.color}">${c.emoji}</div>`:''}
+      <div>${m.name?`<div class="msg-sender">${m.name}</div>`:''}<div class="bubble">${m.text}</div></div>
+      ${m.from==='out'?`<div class="msg-avatar" style="background:#12B7F5">我</div>`:''}
+    </div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+
+function sendMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||!currentChatId)return;
+  const now=new Date();
+  const time=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  conversations[currentChatId].messages.push({from:'out',text,time});
+  input.value='';
+  document.getElementById('sendBtn').style.display='none';
+  renderMessages(currentChatId);
+  setTimeout(()=>{
+    const r=['哈哈，好的！','收到👍','嗯嗯','好的好的','😄','明白了！','在的在的'];
+    conversations[currentChatId].messages.push({from:'in',text:r[Math.floor(Math.random()*r.length)],time});
+    renderMessages(currentChatId);
+  },800+Math.random()*800);
+}
+
+document.getElementById('chatInput').addEventListener('input',function(){
+  document.getElementById('sendBtn').style.display=this.value.trim()?'flex':'none';
+});
+document.getElementById('chatInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(name==='call'){
+    callSeconds=0;clearInterval(callInterval);
+    callInterval=setInterval(()=>{
+      callSeconds++;
+      const m=String(Math.floor(callSeconds/60)).padStart(2,'0');
+      const s=String(callSeconds%60).padStart(2,'0');
+      document.getElementById('callTimer').textContent=m+':'+s;
+    },1000);
+  } else { clearInterval(callInterval); }
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clockTime').textContent=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+updateClock();setInterval(updateClock,10000);
+renderMsgList();renderContacts();
+
+// 检测是否在 iframe 内，若是则切换为嵌入模式
+if (window.self !== window.top) {
+  // 隐藏外层手机壳相关样式，直接铺满
+  document.body.style.cssText = 'margin:0;padding:0;background:transparent;display:block;width:100%;height:100%;overflow:hidden;';
+  const phone = document.querySelector('.phone');
+  if (phone) {
+    phone.style.cssText = 'width:100%;height:100%;height:100dvh;border-radius:0;box-shadow:none;';
+  }
+  const backLink = document.querySelector('.back-to-home');
+  if (backLink) backLink.style.display = 'none';
+  // 把所有"回主页"的链接改为 postMessage
+  document.querySelectorAll('a[href="index.html"]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      window.parent.postMessage('close-app', '*');
+    });
+  });
+}
+</script>
+</body>
+</html>

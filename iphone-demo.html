@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>iPhone Demo Frame</title>
+    <style>
+      :root {
+        --bg: #ece5dc;
+        --panel: rgba(255, 255, 255, 0.62);
+        --panel-strong: rgba(255, 255, 255, 0.78);
+        --line: rgba(255, 255, 255, 0.26);
+        --text: #132238;
+        --text-soft: rgba(19, 34, 56, 0.68);
+        --phone-shell: linear-gradient(180deg, #1f2732 0%, #0e1117 100%);
+        --wallpaper:
+          radial-gradient(circle at 16% 20%, rgba(255, 214, 161, 0.36), transparent 20%),
+          radial-gradient(circle at 74% 22%, rgba(255, 176, 161, 0.24), transparent 22%),
+          linear-gradient(180deg, #ffbb7e 0%, #f08b71 30%, #c35b70 60%, #5d497e 100%);
+        --wallpaper-dark:
+          radial-gradient(circle at 16% 20%, rgba(163, 190, 255, 0.22), transparent 20%),
+          radial-gradient(circle at 74% 22%, rgba(122, 132, 255, 0.18), transparent 24%),
+          linear-gradient(180deg, #0d1732 0%, #172344 32%, #302763 63%, #130f27 100%);
+        --glass: rgba(255, 255, 255, 0.16);
+        --glass-strong: rgba(255, 255, 255, 0.22);
+        --shadow: 0 30px 80px rgba(23, 26, 35, 0.28);
+        --icon-shadow: 0 16px 30px rgba(19, 25, 39, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(255, 229, 196, 0.94), transparent 32%),
+          linear-gradient(180deg, #fdf8ef 0%, #f2eae0 52%, #eadfd3 100%);
+        color: var(--text);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .scene {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        padding: 0;
+      }
+
+      @media (max-width: 768px) {
+        body { background: #000; }
+        .scene {
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+          min-height: 100vh;
+          min-height: 100dvh;
+        }
+        .side-panel { display: none; }
+        .device-stage {
+          flex: 1;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: stretch;
+        }
+        .iphone {
+          width: 100%;
+          min-height: 100vh;
+          min-height: 100dvh;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .screen {
+          border-radius: 0;
+          min-height: calc(100vh - 28px);
+          min-height: calc(100dvh - 28px);
+        }
+        .glow { display: none; }
+      }
+
+      .side-panel {
+        padding: 24px;
+        border-radius: 28px;
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(24px);
+        box-shadow: 0 22px 54px rgba(101, 73, 43, 0.1);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        font-size: 0.78rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #be6323;
+        font-weight: 700;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .side-panel h1 {
+        font-size: clamp(2rem, 3.8vw, 2.9rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .lead {
+        margin-top: 16px;
+        line-height: 1.7;
+        color: var(--text-soft);
+      }
+
+      .feature-list {
+        margin: 20px 0 0;
+        padding-left: 18px;
+        line-height: 1.9;
+        color: var(--text-soft);
+      }
+
+      .control-grid {
+        margin-top: 18px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .control-button {
+        padding: 13px 16px;
+        border-radius: 16px;
+        text-align: left;
+        color: var(--text);
+        background: rgba(19, 34, 56, 0.08);
+      }
+
+      .control-button.is-active {
+        color: #fff;
+        background: linear-gradient(135deg, #182434, #334664);
+      }
+
+      .device-stage {
+        flex: 0 0 auto;
+        width: min(100%, 393px);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh;
+      }
+
+      .iphone {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 0;
+        border-radius: 0;
+        background: none;
+        box-shadow: none;
+        position: relative;
+      }
+
+      .glow {
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(26px);
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .glow-one {
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 193, 92, 0.32);
+        top: 2%;
+        left: -6%;
+      }
+
+      .glow-two {
+        width: 230px;
+        height: 230px;
+        background: rgba(102, 132, 255, 0.24);
+        bottom: 8%;
+        right: -10%;
+      }
+
+      .dynamic-island { display: none; }
+
+      .screen {
+        flex: 1;
+        border-radius: 0;
+        overflow: hidden;
+        position: relative;
+        background: var(--wallpaper);
+        padding: 0;
+      }
+
+      .iphone[data-theme="night"] .screen {
+        background: var(--wallpaper-dark);
+      }
+
+      .screen::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 26%),
+          radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.22), transparent 16%);
+        pointer-events: none;
+      }
+
+      .view {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        transform: translateY(100%);
+        transition: transform 380ms cubic-bezier(.22,1,.36,1), visibility 0s 380ms;
+        overflow-y: auto;
+        visibility: hidden;
+      }
+
+      .view.is-active {
+        transform: translateY(0);
+        transition: transform 380ms cubic-bezier(.22,1,.36,1), visibility 0s 0s;
+        visibility: visible;
+      }
+
+      .view.is-above {
+        transform: translateY(-100%);
+        visibility: hidden;
+      }
+
+      .view.is-below {
+        transform: translateY(100%);
+        visibility: hidden;
+      }
+
+      .lock-view {
+        color: #fff;
+        min-height: 760px;
+        display: grid;
+        grid-template-rows: auto auto 1fr auto auto;
+      }
+
+      .lock-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 4px 0;
+        font-size: 0.84rem;
+      }
+
+      .lock-clock {
+        text-align: center;
+        margin-top: 54px;
+      }
+
+      .lock-date {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      .lock-time {
+        margin-top: 10px;
+        font-size: 5.4rem;
+        line-height: 0.9;
+        font-weight: 600;
+        letter-spacing: -0.05em;
+      }
+
+      .lock-widgets {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 12px;
+      }
+
+      .widget-card,
+      .control-center,
+      .library-card,
+      .app-card,
+      .info-card,
+      .quick-tile,
+      .mini-widget,
+      .dock,
+      .search-pill,
+      .notification-card {
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(24px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      }
+
+      .widget-card {
+        min-height: 112px;
+        border-radius: 24px;
+        padding: 16px;
+      }
+
+      .widget-card h3 {
+        margin-top: 6px;
+        font-size: 1.35rem;
+      }
+
+      .widget-label {
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.72;
+      }
+
+      .widget-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .mini-widget {
+        border-radius: 22px;
+        padding: 14px;
+        min-height: 50px;
+      }
+
+      .notification-stack {
+        display: grid;
+        gap: 12px;
+        align-self: end;
+        margin-bottom: 20px;
+      }
+
+      .notification-card {
+        border-radius: 22px;
+        padding: 16px;
+      }
+
+      .notification-card strong {
+        display: block;
+        margin: 6px 0 4px;
+      }
+
+      .unlock-cta {
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      .home-view {
+        color: #fff;
+      }
+
+      .status-bar {
+        min-height: 58px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 4px 10px;
+      }
+
+      .status-time,
+      .status-action {
+        background: transparent;
+        color: inherit;
+      }
+
+      .status-time {
+        padding: 8px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+
+      .status-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-action {
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .home-widgets {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 12px;
+      }
+
+      .icon-grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px 12px;
+      }
+
+      .app-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: #fff;
+      }
+
+      .icon-tile {
+        width: 62px;
+        height: 62px;
+        border-radius: 19px;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 1.36rem;
+        box-shadow: var(--icon-shadow);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+      }
+
+      .app-icon:hover .icon-tile,
+      .control-button:hover,
+      .status-action:hover,
+      .status-time:hover,
+      .unlock-cta:hover,
+      .quick-tile:hover,
+      .library-pill:hover,
+      .dock-icon:hover,
+      .gesture-bar:hover,
+      .segmented-button:hover {
+        transform: translateY(-2px);
+      }
+
+      .icon-messages { background: linear-gradient(135deg, #6e84ff, #7ed0ff); }
+      .icon-music { background: linear-gradient(135deg, #ff6a77, #ffbe74); }
+      .icon-camera { background: linear-gradient(135deg, #1b2740, #6d7a98); }
+      .icon-maps { background: linear-gradient(135deg, #5fd48a, #31b6b1); }
+      .icon-notes { background: linear-gradient(135deg, #ffe27a, #f3a645); color: #5c3815; }
+      .icon-health { background: linear-gradient(135deg, #ff7da8, #f14b76); }
+      .icon-gallery { background: linear-gradient(135deg, #cc90ff, #ff78b9); }
+      .icon-browser { background: linear-gradient(135deg, #77b8ff, #6c7aff); }
+      .icon-phone { background: linear-gradient(135deg, #46e28e, #36b96e); }
+      .icon-mail { background: linear-gradient(135deg, #7bd5ff, #427fff); }
+      .icon-fitness { background: linear-gradient(135deg, #ff7ca6, #f64e7c); }
+      .icon-files { background: linear-gradient(135deg, #b7c7ff, #7f95ff); }
+
+      .app-name {
+        font-size: 0.8rem;
+      }
+
+      .dock {
+        margin-top: 24px;
+        padding: 12px 14px;
+        border-radius: 30px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .dock-icon {
+        background: transparent;
+      }
+
+      .search-pill {
+        margin-top: 14px;
+        width: 100%;
+        border-radius: 18px;
+        padding: 14px 18px;
+        color: rgba(255, 255, 255, 0.82);
+        text-align: left;
+      }
+
+      .gesture-wrap {
+        margin-top: 14px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .gesture-bar {
+        width: 136px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .library-view {
+        color: #fff;
+      }
+
+      .library-search {
+        margin-top: 10px;
+      }
+
+      .library-search input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        outline: none;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+
+      .library-search input::placeholder {
+        color: rgba(255, 255, 255, 0.64);
+      }
+
+      .library-grid {
+        margin-top: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .library-card {
+        border-radius: 24px;
+        padding: 16px;
+      }
+
+      .library-card h3 {
+        font-size: 0.98rem;
+        margin-bottom: 12px;
+      }
+
+      .library-icons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .library-pill {
+        display: grid;
+        place-items: center;
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+
+      .control-overlay,
+      .app-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 220ms ease;
+      }
+
+      .control-overlay.is-visible,
+      .app-overlay.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .control-overlay {
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(12px);
+        display: flex;
+        align-items: flex-end;
+        padding-bottom: 0;
+      }
+
+      .control-center-panel {
+        width: 100%;
+        background: #1c1a17;
+        border-radius: 28px 28px 0 0;
+        padding: 20px 18px 36px;
+        transform: translateY(100%);
+        transition: transform 320ms cubic-bezier(.22,1,.36,1);
+      }
+
+      .control-overlay.is-visible .control-center-panel {
+        transform: translateY(0);
+      }
+
+      .cc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+
+      .cc-eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .cc-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .cc-close {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .cc-sliders {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .cc-slider-card {
+        background: #2a2825;
+        border-radius: 18px;
+        padding: 14px 14px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 200px;
+      }
+
+      .cc-slider-top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #aaa;
+      }
+
+      .cc-slider-track {
+        flex: 1;
+        background: #3a3835;
+        border-radius: 999px;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .cc-slider-fill {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-radius: 999px;
+        transition: height .1s;
+      }
+
+      .cc-slider-dot {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #e8335a;
+        transition: bottom .1s;
+        z-index: 2;
+      }
+
+      .cc-theme-card {
+        background: linear-gradient(135deg, #3d2e1e, #5a3e28);
+        border-radius: 18px;
+        padding: 16px 18px;
+        cursor: pointer;
+      }
+
+      .cc-theme-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        margin: 4px 0;
+      }
+
+      .cc-theme-sub {
+        font-size: 12px;
+        color: rgba(255,255,255,0.6);
+      }
+
+      .control-center {
+        width: 100%;
+        height: 100%;
+        border-radius: 30px;
+        padding: 18px;
+        color: #fff;
+        background: rgba(20, 23, 33, 0.5);
+      }
+
+      .control-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-pill {
+        padding: 10px 14px;
+        border-radius: 999px;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .control-layout {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 12px;
+      }
+
+      .control-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .quick-cluster {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .quick-tile {
+        min-height: 82px;
+        border-radius: 24px;
+        padding: 14px;
+        text-align: left;
+        color: #fff;
+      }
+
+      .quick-tile.is-on {
+        background: linear-gradient(135deg, rgba(122, 212, 255, 0.48), rgba(107, 133, 255, 0.34));
+      }
+
+      .now-playing {
+        min-height: 176px;
+      }
+
+      .vertical-sliders {
+        display: grid;
+        gap: 12px;
+      }
+
+      .slider-tile,
+      .utility-tile {
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 16px;
+        color: #fff;
+      }
+
+      .slider {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .utility-grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .utility-tile {
+        min-height: 82px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .app-overlay {
+        display: grid;
+        place-items: end center;
+        padding: 94px 14px 76px;
+        background: rgba(8, 10, 16, 0.2);
+      }
+
+      .app-overlay.is-fullscreen {
+        padding: 0;
+        place-items: stretch;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .app-overlay.is-fullscreen .app-card {
+        border-radius: 0;
+        padding: 0;
+        min-height: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        transform: none !important;
+      }
+
+      .app-overlay.is-fullscreen .app-head {
+        padding: 14px 16px 10px;
+        background: #12B7F5;
+        color: #fff;
+        border-radius: 0;
+      }
+
+      .app-overlay.is-fullscreen .app-body {
+        flex: 1;
+        margin-top: 0;
+        overflow: hidden;
+        height: 100%;
+      }
+
+      .app-card {
+        width: 100%;
+        min-height: 320px;
+        border-radius: 32px;
+        padding: 20px;
+        color: #fff;
+        transform-origin: center bottom;
+        transform: scale(0.82) translateY(38px);
+        opacity: 0;
+        transition: transform 260ms cubic-bezier(.22, 1, .36, 1), opacity 260ms ease;
+      }
+
+      .app-overlay.is-visible .app-card {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+
+      .app-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+      }
+
+      .app-head h2 {
+        margin-top: 6px;
+        font-size: 1.62rem;
+      }
+
+      .app-body {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .segmented-actions {
+        display: grid;
+        gap: 10px;
+      }
+
+      .segmented-button {
+        padding: 14px 16px;
+        border-radius: 18px;
+        text-align: left;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .info-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .feed {
+        margin-top: 18px;
+        display: grid;
+        gap: 10px;
+        max-height: 580px;
+        overflow: auto;
+      }
+
+      .feed-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: var(--panel-strong);
+        border: 1px solid rgba(255, 255, 255, 0.74);
+      }
+
+      .feed-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .feed-item span {
+        color: var(--text-soft);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 1200px) {
+        .scene {
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+
+        .side-panel,
+        .device-stage {
+          width: min(100%, 680px);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .scene {
+          padding: 18px;
+          gap: 18px;
+        }
+
+        .side-panel {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .iphone {
+          min-height: 780px;
+          border-radius: 38px;
+          padding: 12px;
+        }
+
+        .screen {
+          min-height: 756px;
+        }
+
+        .lock-time {
+          font-size: 4.7rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scene">
+      <section class="device-stage">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
+
+        <div class="iphone" data-theme="day">
+          <div class="dynamic-island"></div>
+
+          <section class="screen">
+            <section class="view lock-view is-active" data-view="lock">
+              <div class="lock-top">
+                <span>中国移动</span>
+                <span>5G · 86%</span>
+              </div>
+
+              <div class="lock-clock">
+                <p class="lock-date">星期二, 3月31日</p>
+                <h2 class="lock-time">09:41</h2>
+              </div>
+
+              <section class="lock-widgets">
+                <article class="widget-card">
+                  <p class="widget-label">天气</p>
+                  <h3>26° 晴</h3>
+                  <p style="margin-top:8px;">今天适合出行，湿度舒适。</p>
+                </article>
+                <div class="widget-stack">
+                  <article class="mini-widget">
+                    <p class="widget-label">日程</p>
+                    <strong>15:30 评审</strong>
+                  </article>
+                  <article class="mini-widget">
+                    <p class="widget-label">专注</p>
+                    <strong>48 分钟</strong>
+                  </article>
+                </div>
+              </section>
+
+              <section class="notification-stack">
+                <article class="notification-card">
+                  <p class="widget-label">消息</p>
+                  <strong>你有 3 条新的产品讨论</strong>
+                  <span>2 分钟前</span>
+                </article>
+                <article class="notification-card">
+                  <p class="widget-label">提醒事项</p>
+                  <strong>首页交互走查待完成</strong>
+                  <span>18 分钟前</span>
+                </article>
+              </section>
+
+              <button class="unlock-cta" data-demo-view="home">轻点进入主屏</button>
+              <div class="gesture-wrap">
+                <div class="gesture-bar"></div>
+              </div>
+            </section>
+
+            <section class="view home-view" data-view="home">
+              <header class="status-bar">
+                <button class="status-time" data-demo-action="lock">09:41</button>
+                <div class="status-actions">
+                </div>
+              </header>
+
+              <section class="home-widgets">
+                <article class="widget-card">
+                  <p class="widget-label">今日摘要</p>
+                  <h3>天气 / 日程 / 待办</h3>
+                  <p style="margin-top:8px;">2 个会议，1 个设计确认，电量充足。</p>
+                </article>
+                <article class="widget-card">
+                  <p class="widget-label">播放中</p>
+                  <h3>City Pop</h3>
+                  <p style="margin-top:8px;">低噪音工作歌单</p>
+                </article>
+              </section>
+
+              <section class="icon-grid">
+                <button class="app-icon" data-app="messages" type="button">
+                  <span class="icon-tile icon-messages">M</span>
+                  <span class="app-name">消息</span>
+                </button>
+                <button class="app-icon" data-app="music" type="button">
+                  <span class="icon-tile icon-music">♪</span>
+                  <span class="app-name">音乐</span>
+                </button>
+                <button class="app-icon" data-app="camera" type="button">
+                  <span class="icon-tile icon-camera">◉</span>
+                  <span class="app-name">相机</span>
+                </button>
+                <button class="app-icon" data-app="maps" type="button">
+                  <span class="icon-tile icon-maps">↗</span>
+                  <span class="app-name">地图</span>
+                </button>
+                <button class="app-icon" data-app="notes" type="button">
+                  <span class="icon-tile icon-notes">N</span>
+                  <span class="app-name">备忘录</span>
+                </button>
+                <button class="app-icon" data-app="health" type="button">
+                  <span class="icon-tile icon-health">♥</span>
+                  <span class="app-name">健康</span>
+                </button>
+                <button class="app-icon" data-app="gallery" type="button">
+                  <span class="icon-tile icon-gallery">✦</span>
+                  <span class="app-name">照片</span>
+                </button>
+                <button class="app-icon" data-app="files" type="button">
+                  <span class="icon-tile icon-files">▣</span>
+                  <span class="app-name">文件</span>
+                </button>
+              </section>
+
+              <section class="dock">
+                <button class="dock-icon app-icon" data-app="phone" type="button">
+                  <span class="icon-tile icon-phone">☎</span>
+                </button>
+                <button class="dock-icon app-icon" data-app="browser" type="button">
+                  <span class="icon-tile icon-browser">◎</span>
+                </button>
+                <button class="dock-icon app-icon" data-app="mail" type="button">
+                  <span class="icon-tile icon-mail">@</span>
+                </button>
+                <button class="dock-icon app-icon" data-app="music" type="button">
+                  <span class="icon-tile icon-music">♪</span>
+                </button>
+              </section>
+
+              <div class="gesture-wrap">
+                <button class="gesture-bar" data-demo-view="home" type="button" aria-label="回到主屏"></button>
+              </div>
+            </section>
+
+            <section class="app-overlay" hidden>
+              <article class="app-card">
+                <div class="app-head">
+                  <div>
+                    <p class="widget-label" id="app-kicker">应用</p>
+                    <h2 id="app-title">消息</h2>
+                  </div>
+                  <button class="close-pill" data-demo-action="close-app">关闭</button>
+                </div>
+
+                <div class="app-body" id="app-body">
+                  <p id="app-desc">这里会展示应用预览内容。</p>
+                  <div class="segmented-actions" id="app-actions"></div>
+                </div>
+              </article>
+            </section>
+
+            <section class="control-overlay" hidden>
+              <div class="control-center-panel">
+                <div class="cc-header">
+                  <div>
+                    <p class="cc-eyebrow">CONTROL CENTER</p>
+                    <h3 class="cc-title">控制中心</h3>
+                  </div>
+                  <button class="cc-close" data-demo-action="close-controls">✕</button>
+                </div>
+                <div class="cc-sliders">
+                  <div class="cc-slider-card">
+                    <div class="cc-slider-top"><span>亮度</span><span id="brightnessVal">100%</span></div>
+                    <div class="cc-slider-track">
+                      <div class="cc-slider-fill" id="brightnessFill" style="height:100%"></div>
+                      <div class="cc-slider-dot" id="brightnessDot" style="bottom:calc(100% - 12px)"></div>
+                    </div>
+                  </div>
+                  <div class="cc-slider-card">
+                    <div class="cc-slider-top"><span>音量</span><span id="volumeVal">100%</span></div>
+                    <div class="cc-slider-track">
+                      <div class="cc-slider-fill" id="volumeFill" style="height:100%"></div>
+                      <div class="cc-slider-dot" id="volumeDot" style="bottom:calc(100% - 12px)"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="cc-theme-card" id="ccThemeCard">
+                  <p class="cc-eyebrow">昼夜主题</p>
+                  <h3 class="cc-theme-title" id="ccThemeTitle">白昼模式</h3>
+                  <p class="cc-theme-sub" id="ccThemeSub">点击切换夜幕</p>
+                </div>
+              </div>
+            </section>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const appCatalog = {
+        messages: {
+          title: "消息",
+          description: "适合替换成 iMessage 风格的会话列表、团队聊天或客服面板。",
+          actions: ["查看最近会话", "新建消息", "固定联系人"],
+          url: "qq-demo.html",
+        },
+        music: {
+          title: "音乐",
+          description: "可以扩展成 Apple Music 风格播放器、推荐流或播客页面。",
+          actions: ["继续播放", "打开歌单", "查看专辑"],
+        },
+        camera: {
+          title: "相机",
+          description: "适合放拍照预览、视频录制、扫码或滤镜选择界面。",
+          actions: ["拍照", "录像", "扫一扫"],
+        },
+        maps: {
+          title: "地图",
+          description: "可以进一步承接导航、门店、路径规划和定位展示。",
+          actions: ["开始导航", "附近地点", "收藏地点"],
+        },
+        notes: {
+          title: "备忘录",
+          description: "适合作为富文本记录、待办整理和灵感收集页。",
+          actions: ["新建笔记", "查看草稿", "今日待办"],
+        },
+        health: {
+          title: "健康",
+          description: "可以承接步数、训练数据、睡眠分析或目标打卡视图。",
+          actions: ["查看数据", "今日活动", "健康趋势"],
+        },
+        gallery: {
+          title: "照片",
+          description: "适合扩展成相册、项目作品集或媒体管理页面。",
+          actions: ["最近照片", "人物分类", "精选内容"],
+        },
+        files: {
+          title: "文件",
+          description: "可以接文件管理、项目目录浏览或素材中转页。",
+          actions: ["最近文件", "浏览文件夹", "共享项目"],
+        },
+        phone: {
+          title: "电话",
+          description: "适合作为拨号、联系人、通话记录或热线页面。",
+          actions: ["拨号盘", "最近通话", "联系人"],
+        },
+        browser: {
+          title: "Safari",
+          description: "可以接 WebView 容器、资讯页或业务工作台入口。",
+          actions: ["继续浏览", "阅读列表", "打开标签页"],
+        },
+        mail: {
+          title: "邮件",
+          description: "适合做收件箱、审批消息或商务通知中心。",
+          actions: ["收件箱", "写邮件", "星标邮件"],
+        },
+      };
+
+      const iphone = document.querySelector(".iphone");
+      const views = [...document.querySelectorAll(".view")];
+      const controlOverlay = document.querySelector(".control-overlay");
+      const appOverlay = document.querySelector(".app-overlay");
+      const appTitle = document.getElementById("app-title");
+      const appDesc = document.getElementById("app-desc");
+      const appActions = document.getElementById("app-actions");
+      const feed = document.getElementById("feed");
+      const lockTime = document.querySelector(".lock-time");
+      const statusTimes = [...document.querySelectorAll(".status-time")];
+      const demoViewButtons = [...document.querySelectorAll("[data-demo-view]")];
+      const sideButtons = [...document.querySelectorAll(".control-grid .control-button")];
+
+      let currentView = "lock";
+
+      const timeFormatter = new Intl.DateTimeFormat("zh-CN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      function log(title, detail) {
+        const item = document.createElement("article");
+        item.className = "feed-item";
+        item.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
+        feed.prepend(item);
+      }
+
+      function refreshTime() {
+        const now = timeFormatter.format(new Date());
+        lockTime.textContent = now;
+        statusTimes.forEach((node) => {
+          if (node.dataset.demoAction !== "lock") {
+            return;
+          }
+          node.textContent = now;
+        });
+        const homeTime = document.querySelector(".home-view .status-time");
+        if (homeTime) homeTime.textContent = now;
+      }
+
+      function setView(name, shouldLog = true) {
+        const prev = currentView;
+        currentView = name;
+        views.forEach((view) => {
+          if (view.dataset.view === name) {
+            view.classList.add("is-active");
+            view.classList.remove("is-above", "is-below");
+          } else {
+            view.classList.remove("is-active");
+            // 锁屏切到主页时，锁屏向上退出
+            if (prev === "lock" && name === "home") {
+              view.classList.add("is-above");
+              view.classList.remove("is-below");
+            } else {
+              view.classList.add("is-below");
+              view.classList.remove("is-above");
+            }
+          }
+        });
+
+        closeControls(false);
+        closeApp(false);
+      }
+
+      function openControls() {
+        controlOverlay.hidden = false;
+        requestAnimationFrame(() => {
+          controlOverlay.classList.add("is-visible");
+        });
+        log("控制中心", `已展开控制中心 · ${timeFormatter.format(new Date())}`);
+      }
+
+      function closeControls(shouldLog = true) {
+        controlOverlay.classList.remove("is-visible");
+        setTimeout(() => {
+          if (!controlOverlay.classList.contains("is-visible")) {
+            controlOverlay.hidden = true;
+          }
+        }, 220);
+        if (shouldLog) {
+          log("控制中心", `已关闭控制中心 · ${timeFormatter.format(new Date())}`);
+        }
+      }
+
+      // 下滑手势打开控制中心
+      const phoneScreen = document.querySelector(".screen");
+      let touchStartY = 0, touchStartX = 0;
+      phoneScreen.addEventListener("touchstart", e => {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      phoneScreen.addEventListener("touchend", e => {
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+        if (Math.abs(dy) < 50 || dx > 80) return;
+
+        if (dy < -60) {
+          // 上滑：锁屏解锁 或 关闭控制中心
+          if (currentView === "lock") {
+            setView("home");
+          } else if (controlOverlay.classList.contains("is-visible")) {
+            closeControls();
+          }
+        } else if (dy > 60) {
+          // 下滑：主页面呼出控制中心
+          if (currentView === "home" && !controlOverlay.classList.contains("is-visible")) {
+            openControls();
+          }
+        }
+      }, { passive: true });
+
+      // 滑块交互
+      function initCCSlider(trackId, fillId, dotId, valId) {
+        const track = document.querySelector(`#${trackId} .cc-slider-track`) ||
+          document.querySelectorAll(".cc-slider-track")[trackId];
+        const fill = document.getElementById(fillId);
+        const dot = document.getElementById(dotId);
+        const val = document.getElementById(valId);
+        if (!fill || !dot || !val) return;
+        const parent = fill.closest(".cc-slider-track");
+
+        function update(clientY) {
+          const rect = parent.getBoundingClientRect();
+          let pct = 1 - (clientY - rect.top) / rect.height;
+          pct = Math.max(0, Math.min(1, pct));
+          fill.style.height = (pct * 100) + "%";
+          dot.style.bottom = `calc(${pct * 100}% - 12px)`;
+          val.textContent = Math.round(pct * 100) + "%";
+        }
+
+        parent.addEventListener("touchstart", e => update(e.touches[0].clientY), { passive: true });
+        parent.addEventListener("touchmove", e => { e.preventDefault(); update(e.touches[0].clientY); }, { passive: false });
+        parent.addEventListener("mousedown", e => {
+          update(e.clientY);
+          const move = ev => update(ev.clientY);
+          const up = () => { document.removeEventListener("mousemove", move); document.removeEventListener("mouseup", up); };
+          document.addEventListener("mousemove", move);
+          document.addEventListener("mouseup", up);
+        });
+      }
+
+      const sliderCards = document.querySelectorAll(".cc-slider-card");
+      if (sliderCards[0]) {
+        const t0 = sliderCards[0].querySelector(".cc-slider-track");
+        const t1 = sliderCards[1] && sliderCards[1].querySelector(".cc-slider-track");
+        function makeSlider(track, fillId, dotId, valId) {
+          const fill = document.getElementById(fillId);
+          const dot = document.getElementById(dotId);
+          const val = document.getElementById(valId);
+          function update(clientY) {
+            const rect = track.getBoundingClientRect();
+            let pct = 1 - (clientY - rect.top) / rect.height;
+            pct = Math.max(0, Math.min(1, pct));
+            fill.style.height = (pct * 100) + "%";
+            dot.style.bottom = `calc(${pct * 100}% - 12px)`;
+            val.textContent = Math.round(pct * 100) + "%";
+          }
+          track.addEventListener("touchstart", e => update(e.touches[0].clientY), { passive: true });
+          track.addEventListener("touchmove", e => { e.preventDefault(); update(e.touches[0].clientY); }, { passive: false });
+          track.addEventListener("mousedown", e => {
+            update(e.clientY);
+            const mv = ev => update(ev.clientY);
+            const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); };
+            document.addEventListener("mousemove", mv);
+            document.addEventListener("mouseup", up);
+          });
+        }
+        if (t0) makeSlider(t0, "brightnessFill", "brightnessDot", "brightnessVal");
+        if (t1) makeSlider(t1, "volumeFill", "volumeDot", "volumeVal");
+      }
+
+      // 昼夜切换
+      document.getElementById("ccThemeCard").addEventListener("click", () => {
+        const iphone = document.querySelector(".iphone");
+        const isNight = iphone.dataset.theme === "night";
+        iphone.dataset.theme = isNight ? "day" : "night";
+        document.getElementById("ccThemeTitle").textContent = isNight ? "白昼模式" : "夜幕模式";
+        document.getElementById("ccThemeSub").textContent = isNight ? "点击切换夜幕" : "点击切换白昼";
+      });
+
+      function openApp(appKey, source = "主屏") {
+        const app = appCatalog[appKey];
+        if (!app) return;
+
+        if (app.url) {
+          window.location.href = app.url;
+          return;
+        }
+
+        if (currentView === "lock") {
+          setView("home", false);
+        }
+
+        closeControls(false);
+        appTitle.textContent = app.title;
+
+        const appBody = document.getElementById("app-body");
+        appOverlay.classList.remove("is-fullscreen");
+        appOverlay.style.cssText = "";
+        const card = appOverlay.querySelector(".app-card");
+        card.style.cssText = "";
+        const head = appOverlay.querySelector(".app-head");
+        head.style.cssText = "";
+        appBody.style.cssText = "";
+        appBody.innerHTML = `<p id="app-desc">${app.description}</p><div class="segmented-actions" id="app-actions"></div>`;
+        app.actions.forEach((label) => {
+          const button = document.createElement("button");
+          button.className = "segmented-button";
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", () => {
+            log(app.title, `触发动作: ${label} · ${timeFormatter.format(new Date())}`);
+          });
+          document.getElementById("app-actions").append(button);
+        });
+
+        appOverlay.hidden = false;
+        requestAnimationFrame(() => {
+          appOverlay.classList.add("is-visible");
+        });
+        log(app.title, `从${source}打开 · ${timeFormatter.format(new Date())}`);
+      }
+
+      function closeApp(shouldLog = true) {
+        appOverlay.classList.remove("is-visible");
+        appOverlay.classList.remove("is-fullscreen");
+        appOverlay.style.cssText = "";
+        const card = appOverlay.querySelector(".app-card");
+        if (card) card.style.cssText = "";
+        const head = appOverlay.querySelector(".app-head");
+        if (head) head.style.cssText = "";
+        const body = document.getElementById("app-body");
+        if (body) body.style.cssText = "";
+        setTimeout(() => {
+          if (!appOverlay.classList.contains("is-visible")) {
+            appOverlay.hidden = true;
+          }
+        }, 260);
+        if (shouldLog) {
+          log("应用窗口", `已关闭当前应用 · ${timeFormatter.format(new Date())}`);
+        }
+      }
+
+      document.querySelectorAll("[data-app]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const source = button.closest(".library-view") ? "App Library" : button.closest(".dock") ? "Dock" : "主屏";
+          openApp(button.dataset.app, source);
+        });
+      });
+
+      demoViewButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setView(button.dataset.demoView);
+        });
+      });
+
+      document.querySelectorAll("[data-demo-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.demoAction;
+
+          if (action === "controls") {
+            openControls();
+            return;
+          }
+
+          if (action === "close-controls") {
+            closeControls();
+            return;
+          }
+
+          if (action === "close-app") {
+            closeApp();
+            return;
+          }
+
+          if (action === "theme") {
+            const nextTheme = iphone.dataset.theme === "day" ? "night" : "day";
+            iphone.dataset.theme = nextTheme;
+            log("主题切换", `当前主题: ${nextTheme === "day" ? "白昼" : "夜幕"} · ${timeFormatter.format(new Date())}`);
+            return;
+          }
+
+          if (action === "lock") {
+            setView("lock");
+            log("锁屏", `已返回锁屏界面 · ${timeFormatter.format(new Date())}`);
+            return;
+          }
+
+          if (action === "close-all") {
+            closeControls(false);
+            closeApp(false);
+            log("系统整理", `已关闭所有浮层 · ${timeFormatter.format(new Date())}`);
+            return;
+          }
+
+          if (action === "clear-feed") {
+            feed.innerHTML = "";
+            log("记录", `交互记录已清空 · ${timeFormatter.format(new Date())}`);
+          }
+        });
+      });
+
+      document.querySelectorAll(".quick-tile").forEach((tile) => {
+        tile.addEventListener("click", () => {
+          tile.classList.toggle("is-on");
+          log("快捷开关", `${tile.textContent.trim()} 已${tile.classList.contains("is-on") ? "开启" : "关闭"} · ${timeFormatter.format(new Date())}`);
+        });
+      });
+
+      document.querySelectorAll(".slider").forEach((slider) => {
+        slider.addEventListener("input", () => {
+          const label = slider.closest(".slider-tile").querySelector(".widget-label").textContent;
+          log(label, `调整到 ${slider.value}% · ${timeFormatter.format(new Date())}`);
+        });
+      });
+
+      refreshTime();
+      setInterval(refreshTime, 30000);
+      log("演示页已加载", "可以直接切换锁屏、主屏、App Library、控制中心并查看动画");
+    </script>
+  </body>
+</html>

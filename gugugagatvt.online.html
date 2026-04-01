@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gugugagatvt.online 诊断页</title>
+    <style>
+      :root {
+        --bg: #f5efe7;
+        --panel: rgba(255, 255, 255, 0.78);
+        --panel-strong: rgba(255, 255, 255, 0.88);
+        --text: #162235;
+        --text-soft: rgba(22, 34, 53, 0.7);
+        --line: rgba(22, 34, 53, 0.1);
+        --accent: #244d8f;
+        --accent-strong: #183865;
+        --warn: #9c4a18;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top, rgba(255, 230, 188, 0.84), transparent 30%),
+          linear-gradient(180deg, #fffaf1 0%, var(--bg) 58%, #eee3d7 100%);
+      }
+
+      a,
+      button {
+        font: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        gap: 18px;
+        padding: 24px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 20px 50px rgba(70, 48, 20, 0.08);
+        border-radius: 26px;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        font-size: 0.78rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #b46524;
+        font-weight: 700;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.7rem, 3vw, 2.5rem);
+        line-height: 1.05;
+      }
+
+      .desc {
+        margin-top: 10px;
+        line-height: 1.7;
+        color: var(--text-soft);
+      }
+
+      .url-box {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(22, 34, 53, 0.06);
+        border: 1px solid var(--line);
+        color: var(--text-soft);
+        word-break: break-all;
+      }
+
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .action {
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: 0;
+      }
+
+      .action-primary {
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      }
+
+      .action-secondary {
+        color: var(--text);
+        background: rgba(22, 34, 53, 0.08);
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .status-banner {
+        border-radius: 22px;
+        padding: 18px;
+        background: linear-gradient(135deg, rgba(255, 210, 166, 0.72), rgba(255, 232, 205, 0.72));
+        border: 1px solid rgba(255, 255, 255, 0.82);
+      }
+
+      .status-banner strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.02rem;
+        color: var(--warn);
+      }
+
+      .status-banner p {
+        line-height: 1.7;
+        color: rgba(101, 58, 22, 0.86);
+      }
+
+      .steps {
+        margin-top: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .step {
+        padding: 16px;
+        border-radius: 18px;
+        background: var(--panel-strong);
+        border: 1px solid rgba(255, 255, 255, 0.84);
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .step p {
+        color: var(--text-soft);
+        line-height: 1.65;
+      }
+
+      .mini-title {
+        margin-bottom: 12px;
+        font-size: 1.08rem;
+      }
+
+      .code-box {
+        padding: 16px;
+        border-radius: 18px;
+        background: rgba(22, 34, 53, 0.06);
+        border: 1px solid var(--line);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92rem;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .note {
+        margin-top: 14px;
+        color: var(--text-soft);
+        line-height: 1.7;
+      }
+
+      @media (max-width: 900px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 14px;
+        }
+
+        .panel {
+          border-radius: 20px;
+        }
+
+        .hero,
+        .card {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="panel hero">
+        <p class="eyebrow">Website Diagnosis</p>
+        <h1>gugugagatvt.online 当前无法正常打开</h1>
+        <p class="desc">
+          这个页面已经改成诊断页，不再直接内嵌目标站点。原因不是网页外壳本身，而是目标域名目前看起来无法正常解析，
+          所以浏览器才会出现“意外终止了连接”或无法访问。
+        </p>
+
+        <div class="url-box">目标地址: https://gugugagatvt.online</div>
+
+        <div class="actions">
+          <a class="action action-primary" href="https://gugugagatvt.online" target="_blank" rel="noreferrer noopener">
+            仍然尝试 HTTPS 打开
+          </a>
+          <a class="action action-secondary" href="http://gugugagatvt.online" target="_blank" rel="noreferrer noopener">
+            尝试 HTTP 打开
+          </a>
+        </div>
+      </section>
+
+      <section class="content">
+        <section class="panel card">
+          <div class="status-banner">
+            <strong>当前判断</strong>
+            <p>
+              我在 2026 年 3 月 31 日本地检查时，`curl` 返回的是 `Could not resolve host:
+              gugugagatvt.online`。这通常表示 DNS 解析失败，也就是域名本身当前没有被正确解析到服务器。
+            </p>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <strong>1. 先确认域名有没有拼写错误</strong>
+              <p>像是多字母、少字母、`.online` 后缀写错，都会表现成这种打不开的情况。</p>
+            </div>
+
+            <div class="step">
+              <strong>2. 确认域名是否已经配置 DNS</strong>
+              <p>如果这是你自己的域名，需要在域名管理后台设置 `A` 记录或 `CNAME` 记录，并等待生效。</p>
+            </div>
+
+            <div class="step">
+              <strong>3. 如果你本来想让我做一个网页壳</strong>
+              <p>网页壳已经可以打开，但前提是目标网址本身必须可访问。现在的问题在目标站点，不在这个本地 HTML。</p>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel card">
+          <h2 class="mini-title">检查结果</h2>
+          <div class="code-box">curl -I --max-time 20 https://gugugagatvt.online
+
+curl: (6) Could not resolve host: gugugagatvt.online</div>
+
+          <p class="note">
+            如果你有正确的最新网址，或者这只是一个临时域名，我可以立刻帮你把这个页面改成真正可预览的版本。
+            你只要把新的完整链接发给我就行。
+          </p>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
