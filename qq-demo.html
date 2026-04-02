@@ -537,7 +537,7 @@
   <!-- ══ 消息列表页 ══ -->
   <div class="screen active" id="screen-msg">
     <div class="header">
-      <a href="index.html" style="color:#fff;display:flex;align-items:center;margin-right:8px;opacity:0.9;text-decoration:none;font-size:13px;">◀ 主页</a>
+      <a href="index.html" class="back-to-parent" style="color:#fff;display:flex;align-items:center;margin-right:8px;opacity:0.9;text-decoration:none;font-size:13px;">◀ 主页</a>
       <h2>消息</h2>
       <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></div>
       <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
@@ -804,22 +804,29 @@ updateClock();setInterval(updateClock,10000);
 renderMsgList();renderContacts();
 
 // 检测是否在 iframe 内，若是则切换为嵌入模式
-if (window.self !== window.top) {
-  // 隐藏外层手机壳相关样式，直接铺满
+function initEmbedMode() {
+  if (window.self === window.top) return;
+
   document.body.style.cssText = 'margin:0;padding:0;background:transparent;display:block;width:100%;height:100%;overflow:hidden;';
   const phone = document.querySelector('.phone');
-  if (phone) {
-    phone.style.cssText = 'width:100%;height:100%;height:100dvh;border-radius:0;box-shadow:none;';
-  }
-  const backLink = document.querySelector('.back-to-home');
-  if (backLink) backLink.style.display = 'none';
-  // 把所有"回主页"的链接改为 postMessage
-  document.querySelectorAll('a[href="index.html"]').forEach(el => {
+  if (phone) phone.style.cssText = 'width:100%;height:100%;height:100dvh;border-radius:0;box-shadow:none;';
+
+  const backToHome = document.querySelector('.back-to-home');
+  if (backToHome) backToHome.style.display = 'none';
+
+  // 拦截所有返回主页的按钮，统一用 postMessage
+  document.querySelectorAll('.back-to-parent').forEach(el => {
     el.addEventListener('click', e => {
       e.preventDefault();
       window.parent.postMessage('close-app', '*');
     });
   });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initEmbedMode);
+} else {
+  initEmbedMode();
 }
 </script>
 </body>
