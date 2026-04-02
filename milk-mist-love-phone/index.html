@@ -1,430 +1,375 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#f6edea" />
-    <title>Milk Mist Love Phone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2dfe4" />
+    <title>奶雾恋聊机</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="scene">
-      <div class="ambient ambient-left"></div>
-      <div class="ambient ambient-right"></div>
-
-      <section class="phone-shell">
-        <div class="device-frame">
-          <div class="dynamic-island"></div>
-
-          <div class="screen-surface">
-            <header class="status-bar">
-              <span class="status-time" id="statusTime">12:00</span>
-              <div class="status-icons">
-                <span class="signal-bars">
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                  <i></i>
-                </span>
+    <main class="stage">
+      <div class="phone-frame" id="phoneFrame">
+        <div class="dynamic-island" aria-hidden="true"></div>
+        <div class="screen-surface">
+          <section class="base-screen lock-screen" id="lockScreen" aria-label="锁屏">
+            <div class="status-bar lock-status-bar">
+              <span class="status-time" data-clock>00:00</span>
+              <div class="status-icons" aria-hidden="true">
+                <span class="signal-bars"></span>
                 <span class="wifi-icon"></span>
-                <span class="battery-pill">
-                  <span class="battery-fill"></span>
-                </span>
+                <span class="battery-icon"></span>
               </div>
-            </header>
+            </div>
 
-            <section class="screen is-active" data-screen="lock">
-              <div class="lock-screen">
-                <div class="lock-date">星期四 04/03</div>
-                <div class="lock-time" id="lockTime">12:00</div>
+            <div class="lock-copy">
+              <p class="lock-date" id="lockDate">4月3日 星期五</p>
+              <h1 class="lock-time" id="lockTime">00:00</h1>
+              <div class="lock-story">
+                <p class="lock-story-title" data-bind="lockTitle">今晚的风比昨天轻一点</p>
+                <p class="lock-story-body" data-bind="lockCopy">把想说的话先留在这里，等你慢慢写满。</p>
+              </div>
+            </div>
 
-                <div class="lock-card">
-                  <p class="lock-card-label" id="personaNameText">未命名人设</p>
-                  <h1 class="lock-card-title" id="lockCardTitle">
-                    奶雾恋聊机
-                  </h1>
-                  <p class="lock-card-copy" id="lockCardCopy">
-                    空白人设可导入，聊天内容后续填充。
-                  </p>
+            <button class="lock-notification" id="lockNotification" type="button" aria-label="从通知打开聊天">
+              <div class="lock-notice-app">
+                <span class="lock-notice-badge">QQ</span>
+                <span>刚刚</span>
+              </div>
+              <div class="lock-notice-main">
+                <div class="lock-notice-avatar" data-avatar-letter>聊</div>
+                <div class="lock-notice-text">
+                  <strong data-bind="lockNoticeTitle">消息</strong>
+                  <span data-bind="lockNoticeBody">有人在想你，要不要把第一句写得温柔一点。</span>
                 </div>
-
-                <button
-                  class="lock-notice"
-                  type="button"
-                  data-open-screen="chat-list"
-                >
-                  <div class="lock-notice-meta">
-                    <span>消息</span>
-                    <span>刚刚</span>
-                  </div>
-                  <strong id="lockNoticeTitle">聊天列表占位入口</strong>
-                  <p id="lockNoticeBody">
-                    后续导入人设和对话后，这里显示第一条暧昧通知。
-                  </p>
-                </button>
-
-                <button
-                  class="gesture-bar"
-                  type="button"
-                  data-open-screen="home"
-                  aria-label="解锁进入主屏"
-                ></button>
               </div>
-            </section>
-
-            <section class="screen" data-screen="home">
-              <div class="home-screen">
-                <div class="wallpaper-shimmer"></div>
-
-                <section class="widget-grid">
-                  <article class="widget-card widget-card-large">
-                    <span class="widget-kicker">关系氛围卡片</span>
-                    <h2 id="primaryWidgetTitle">空白可编辑</h2>
-                    <p id="primaryWidgetBody">
-                      用于放一句暧昧便签、心情碎片或关系提示。
-                    </p>
-                  </article>
-
-                  <article class="widget-card widget-card-small">
-                    <span class="widget-kicker">多媒体卡片</span>
-                    <div class="media-placeholder" id="mediaWidgetPreview">
-                      <span id="mediaWidgetLabel">可换图</span>
-                    </div>
-                    <p id="mediaWidgetBody">
-                      支持图片、便签图或“为你做”的展示位。
-                    </p>
-                  </article>
-                </section>
-
-                <section class="app-grid" aria-label="主屏图标">
-                  <button
-                    class="app-icon app-icon-primary"
-                    type="button"
-                    data-open-screen="chat-list"
-                  >
-                    <span class="app-glyph">Q</span>
-                    <span class="app-name">聊天</span>
-                  </button>
-                  <button class="app-icon" type="button">
-                    <span class="app-glyph">R</span>
-                    <span class="app-name">回忆</span>
-                  </button>
-                  <button class="app-icon" type="button">
-                    <span class="app-glyph">P</span>
-                    <span class="app-name">相片</span>
-                  </button>
-                  <button class="app-icon" type="button">
-                    <span class="app-glyph">N</span>
-                    <span class="app-name">便签</span>
-                  </button>
-                </section>
-
-                <footer class="dock">
-                  <button
-                    class="dock-icon"
-                    type="button"
-                    data-open-screen="chat-list"
-                    aria-label="打开聊天列表"
-                  >
-                    <span class="app-glyph">Q</span>
-                  </button>
-                  <button class="dock-icon" type="button" aria-label="打开照片">
-                    <span class="app-glyph">P</span>
-                  </button>
-                  <button class="dock-icon" type="button" aria-label="打开便签">
-                    <span class="app-glyph">N</span>
-                  </button>
-                </footer>
-              </div>
-            </section>
-
-            <section class="screen" data-screen="chat-list">
-              <div class="chat-list-screen">
-                <header class="page-header qq-header">
-                  <button
-                    class="nav-back"
-                    type="button"
-                    data-open-screen="home"
-                    aria-label="返回主屏"
-                  >
-                    ‹
-                  </button>
-                  <h2>消息</h2>
-                  <div class="header-actions">
-                    <button type="button" aria-label="搜索">⌕</button>
-                    <button type="button" aria-label="新增">＋</button>
-                  </div>
-                </header>
-
-                <div class="qq-search">
-                  <input type="text" placeholder="搜索" readonly />
-                </div>
-
-                <section class="thread-list">
-                  <button
-                    class="thread-card"
-                    type="button"
-                    data-open-screen="chat-thread"
-                  >
-                    <span class="thread-avatar warm">A</span>
-                    <span class="thread-main">
-                      <span class="thread-top">
-                        <strong id="threadName">未命名对话</strong>
-                        <em>刚刚</em>
-                      </span>
-                      <span class="thread-preview"
-                        id="threadPreview"
-                        >导入人设后显示最近一条消息预览。</span
-                      >
-                    </span>
-                    <span class="thread-badge" id="threadBadge">1</span>
-                  </button>
-
-                  <article class="thread-card thread-card-muted">
-                    <span class="thread-avatar soft">?</span>
-                    <span class="thread-main">
-                      <span class="thread-top">
-                        <strong>空白会话位</strong>
-                        <em>--:--</em>
-                      </span>
-                      <span class="thread-preview"
-                        >后续可继续扩展更多联系人与会话入口。</span
-                      >
-                    </span>
-                  </article>
-                </section>
-
-                <footer class="qq-tabbar">
-                  <button class="qq-tab is-active" type="button">消息</button>
-                  <button class="qq-tab" type="button">联系人</button>
-                  <button class="qq-tab" type="button">动态</button>
-                </footer>
-              </div>
-            </section>
-
-            <section class="screen" data-screen="chat-thread">
-              <div class="chat-thread-screen">
-                <header class="page-header qq-chat-header">
-                  <button
-                    class="nav-back"
-                    type="button"
-                    data-open-screen="chat-list"
-                    aria-label="返回聊天列表"
-                  >
-                    ‹
-                  </button>
-                  <div class="chat-thread-title">
-                    <strong id="chatTitle">未命名会话</strong>
-                    <span id="chatSubtitle">空白人设</span>
-                  </div>
-                  <div class="header-actions">
-                    <button type="button" aria-label="电话">◦</button>
-                    <button type="button" aria-label="更多">⋯</button>
-                  </div>
-                </header>
-
-                <section class="chat-canvas">
-                  <div class="timestamp-chip">今天 12:00</div>
-
-                  <div class="bubble-row bubble-row-left">
-                    <span class="bubble-avatar">?</span>
-                    <div class="bubble bubble-left" id="incomingBubble">
-                      导入对话后，这里显示对方的第一条消息。
-                    </div>
-                  </div>
-
-                  <div class="bubble-row bubble-row-right">
-                    <div class="bubble bubble-right" id="outgoingBubble">
-                      用户编写或导入的人设内容也会从这里开始填充。
-                    </div>
-                  </div>
-                </section>
-
-                <footer class="composer">
-                  <button class="composer-action" type="button" aria-label="语音">
-                    ＋
-                  </button>
-                  <div class="composer-input">聊天输入框占位</div>
-                  <button class="composer-send" type="button">发送</button>
-                </footer>
-              </div>
-            </section>
-
-            <button
-              class="config-fab"
-              id="openConfigPanel"
-              type="button"
-              aria-label="打开人设配置面板"
-            >
-              人设
             </button>
 
-            <div class="config-overlay" id="configOverlay" hidden>
-              <section
-                class="config-panel"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="configPanelTitle"
-              >
-                <header class="config-header">
-                  <div>
-                    <p class="config-eyebrow">Persona Config</p>
-                    <h2 id="configPanelTitle">人设配置面板</h2>
-                  </div>
-                  <button
-                    class="config-close"
-                    id="closeConfigPanel"
-                    type="button"
-                    aria-label="关闭人设配置面板"
-                  >
-                    ×
-                  </button>
-                </header>
-
-                <div class="config-body">
-                  <section class="config-section">
-                    <h3>基础信息</h3>
-                    <label class="field">
-                      <span>人设名</span>
-                      <input id="personaNameInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>锁屏主标题</span>
-                      <input id="lockTitleInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>锁屏说明</span>
-                      <textarea id="lockCopyInput" rows="3"></textarea>
-                    </label>
-                  </section>
-
-                  <section class="config-section">
-                    <h3>锁屏通知</h3>
-                    <label class="field">
-                      <span>通知标题</span>
-                      <input id="lockNoticeTitleInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>通知正文</span>
-                      <textarea id="lockNoticeBodyInput" rows="3"></textarea>
-                    </label>
-                  </section>
-
-                  <section class="config-section">
-                    <h3>主屏组件</h3>
-                    <label class="field">
-                      <span>氛围卡标题</span>
-                      <input id="primaryWidgetTitleInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>氛围卡正文</span>
-                      <textarea id="primaryWidgetBodyInput" rows="3"></textarea>
-                    </label>
-                    <label class="field">
-                      <span>多媒体卡文案</span>
-                      <input id="mediaWidgetLabelInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>多媒体卡说明</span>
-                      <textarea id="mediaWidgetBodyInput" rows="3"></textarea>
-                    </label>
-                    <label class="field">
-                      <span>多媒体卡图片 URL</span>
-                      <input id="mediaWidgetImageInput" type="url" />
-                    </label>
-                  </section>
-
-                  <section class="config-section">
-                    <h3>聊天列表</h3>
-                    <label class="field">
-                      <span>会话名</span>
-                      <input id="threadNameInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>会话预览</span>
-                      <textarea id="threadPreviewInput" rows="3"></textarea>
-                    </label>
-                    <label class="field">
-                      <span>未读数量</span>
-                      <input id="threadBadgeInput" type="number" min="0" max="99" />
-                    </label>
-                  </section>
-
-                  <section class="config-section">
-                    <h3>单人聊天</h3>
-                    <label class="field">
-                      <span>聊天标题</span>
-                      <input id="chatTitleInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>聊天副标题</span>
-                      <input id="chatSubtitleInput" type="text" />
-                    </label>
-                    <label class="field">
-                      <span>左侧消息</span>
-                      <textarea id="incomingBubbleInput" rows="3"></textarea>
-                    </label>
-                    <label class="field">
-                      <span>右侧消息</span>
-                      <textarea id="outgoingBubbleInput" rows="3"></textarea>
-                    </label>
-                  </section>
-
-                  <section class="config-section">
-                    <h3>JSON 导入导出</h3>
-                    <label class="field">
-                      <span>JSON 文本</span>
-                      <textarea
-                        id="jsonConfigInput"
-                        rows="8"
-                        placeholder='{"personaName":"你的角色名"}'
-                      ></textarea>
-                    </label>
-                    <div class="config-actions">
-                      <button class="config-btn" id="importJsonBtn" type="button">
-                        应用 JSON
-                      </button>
-                      <button
-                        class="config-btn config-btn-secondary"
-                        id="importFileBtn"
-                        type="button"
-                      >
-                        导入 JSON 文件
-                      </button>
-                      <button
-                        class="config-btn config-btn-secondary"
-                        id="exportJsonBtn"
-                        type="button"
-                      >
-                        导出 JSON
-                      </button>
-                      <button
-                        class="config-btn config-btn-danger"
-                        id="resetConfigBtn"
-                        type="button"
-                      >
-                        恢复默认
-                      </button>
-                    </div>
-                    <input
-                      id="jsonFileInput"
-                      type="file"
-                      accept="application/json,.json"
-                      hidden
-                    />
-                    <p class="config-status" id="configStatus">
-                      当前支持页面表单填写、JSON 粘贴导入和 JSON 文件导入。
-                    </p>
-                  </section>
-                </div>
-              </section>
+            <div class="unlock-zone" id="unlockZone">
+              <p class="unlock-copy">上滑解锁</p>
+              <button class="home-pill" id="unlockHandle" type="button" aria-label="上滑解锁"></button>
             </div>
-          </div>
+          </section>
+
+          <section class="base-screen home-screen" id="homeScreen" aria-label="主屏幕">
+            <div class="status-bar home-status-bar">
+              <span class="status-time" data-clock>00:00</span>
+              <div class="status-icons" aria-hidden="true">
+                <span class="signal-bars"></span>
+                <span class="wifi-icon"></span>
+                <span class="battery-icon"></span>
+              </div>
+            </div>
+
+            <div class="home-widgets">
+              <button class="widget-card widget-large" id="heroWidget" type="button">
+                <span class="widget-kicker">留给今天</span>
+                <strong data-bind="primaryWidgetTitle">今天想记住</strong>
+                <p data-bind="primaryWidgetBody">傍晚五点十七分，云有一点粉。</p>
+              </button>
+
+              <button class="widget-card widget-media" id="mediaWidget" type="button">
+                <div class="media-widget-copy">
+                  <span class="widget-kicker" data-bind="mediaWidgetLabel">为你做的</span>
+                  <p data-bind="mediaWidgetBody">这里可以放一张图，或者一句只想给某个人看的话。</p>
+                </div>
+                <div class="media-thumb" id="mediaThumb">
+                  <img id="mediaThumbImage" alt="主屏多媒体卡片" />
+                  <span class="media-placeholder">照片</span>
+                </div>
+              </button>
+            </div>
+
+            <div class="icon-grid">
+              <button class="app-icon" id="messagesIcon" data-open-app="messages" type="button">
+                <span class="icon-squircle icon-messages">
+                  <span class="icon-bubble"></span>
+                </span>
+                <span class="icon-label">消息</span>
+              </button>
+
+              <button class="app-icon" type="button">
+                <span class="icon-squircle icon-photos">
+                  <span class="petal petal-a"></span>
+                  <span class="petal petal-b"></span>
+                  <span class="petal petal-c"></span>
+                  <span class="petal petal-d"></span>
+                </span>
+                <span class="icon-label">照片</span>
+              </button>
+
+              <button class="app-icon" type="button">
+                <span class="icon-squircle icon-notes"></span>
+                <span class="icon-label">备忘录</span>
+              </button>
+
+              <button class="app-icon" id="settingsIcon" data-open-app="settings" type="button">
+                <span class="icon-squircle icon-settings">
+                  <span class="gear-core"></span>
+                </span>
+                <span class="icon-label">设置</span>
+              </button>
+
+              <button class="app-icon" type="button">
+                <span class="icon-squircle icon-calendar">
+                  <span class="calendar-top"></span>
+                  <span class="calendar-date">18</span>
+                </span>
+                <span class="icon-label">日历</span>
+              </button>
+
+              <button class="app-icon" type="button">
+                <span class="icon-squircle icon-weather">
+                  <span class="sun-core"></span>
+                  <span class="cloud-shape"></span>
+                </span>
+                <span class="icon-label">天气</span>
+              </button>
+            </div>
+
+            <div class="dock">
+              <button class="dock-icon" type="button">
+                <span class="icon-squircle icon-phone"></span>
+              </button>
+              <button class="dock-icon" type="button">
+                <span class="icon-squircle icon-camera"></span>
+              </button>
+              <button class="dock-icon" type="button">
+                <span class="icon-squircle icon-music"></span>
+              </button>
+              <button class="dock-icon" type="button">
+                <span class="icon-squircle icon-browser"></span>
+              </button>
+            </div>
+
+            <button class="home-pill home-pill-home" id="homeIdlePill" type="button" aria-label="主屏手势条"></button>
+          </section>
+
+          <section class="app-shell messages-shell" id="messagesShell" aria-hidden="true" data-page="list">
+            <div class="messages-window">
+              <div class="messages-pages">
+                <section class="messages-page messages-list-page" aria-label="聊天列表">
+                  <header class="qq-header">
+                    <div class="qq-header-copy">
+                      <span class="qq-kicker">QQ</span>
+                      <h2>消息</h2>
+                    </div>
+                    <button class="qq-header-action" id="messagesCloseButton" type="button" aria-label="回到主屏">完成</button>
+                  </header>
+
+                  <div class="qq-search-bar">搜索</div>
+
+                  <div class="chat-group">
+                    <button class="chat-row chat-row-primary" id="openThreadButton" type="button">
+                      <div class="chat-avatar chat-avatar-primary" data-avatar-letter>聊</div>
+                      <div class="chat-main">
+                        <div class="chat-meta">
+                          <strong data-bind="threadName">新消息</strong>
+                          <span>刚刚</span>
+                        </div>
+                        <p data-bind="threadPreview">晚一点回也没关系，我还在。</p>
+                      </div>
+                      <span class="chat-badge" id="threadBadge" data-bind="threadBadge">1</span>
+                    </button>
+
+                    <div class="chat-row chat-row-muted">
+                      <div class="chat-avatar chat-avatar-soft">新</div>
+                      <div class="chat-main">
+                        <div class="chat-meta">
+                          <strong>新的朋友</strong>
+                          <span>昨天</span>
+                        </div>
+                        <p>一条新的好友申请，先别着急回应。</p>
+                      </div>
+                    </div>
+
+                    <div class="chat-row chat-row-muted">
+                      <div class="chat-avatar chat-avatar-soft">空</div>
+                      <div class="chat-main">
+                        <div class="chat-meta">
+                          <strong>空间提醒</strong>
+                          <span>周一</span>
+                        </div>
+                        <p>有人给你的最近动态点了一个赞。</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="messages-page chat-thread-page" aria-label="聊天详情">
+                  <header class="thread-header">
+                    <button class="thread-back" id="threadBackButton" type="button">消息</button>
+                    <div class="thread-title">
+                      <strong data-bind="chatTitle">新对话</strong>
+                      <span data-bind="chatSubtitle">在线</span>
+                    </div>
+                    <button class="thread-more" type="button" aria-label="更多">•••</button>
+                  </header>
+
+                  <div class="thread-scene">
+                    <div class="chat-bubble chat-bubble-incoming" data-bind="incomingBubble">刚刚看到一家很好看的面包店。</div>
+                    <div class="chat-bubble chat-bubble-outgoing" data-bind="outgoingBubble">下次路过的时候，拍给我看看。</div>
+                  </div>
+
+                  <div class="thread-toolbar">
+                    <span>语音</span>
+                    <span>图片</span>
+                    <span>送礼</span>
+                  </div>
+
+                  <div class="thread-input-shell">
+                    <div class="thread-input">把下一句想说的话，先在这里存一下。</div>
+                    <button class="thread-send" type="button">+</button>
+                  </div>
+                </section>
+              </div>
+
+              <button class="home-pill app-pill" id="messagesHomePill" type="button" aria-label="返回主屏"></button>
+            </div>
+          </section>
+
+          <section class="app-shell settings-shell" id="settingsShell" aria-hidden="true">
+            <div class="settings-window">
+              <header class="settings-header">
+                <div class="settings-title-block">
+                  <span class="settings-kicker">人设与导入</span>
+                  <h2>设置</h2>
+                </div>
+                <button class="settings-done" id="settingsDoneButton" type="button">完成</button>
+              </header>
+
+              <div class="settings-scroll">
+                <section class="settings-hero-card">
+                  <span class="settings-hero-kicker">当前关系壳</span>
+                  <strong data-bind="personaName">未命名关系</strong>
+                  <p>这台手机先把系统手感立住，内容和人设都从这里慢慢灌进去。</p>
+                </section>
+
+                <form class="settings-form" id="configForm">
+                  <section class="settings-card">
+                    <div class="section-heading">
+                      <span>基础</span>
+                      <strong>人设名片</strong>
+                    </div>
+                    <label class="field-row">
+                      <span>人设名称</span>
+                      <input class="field-control" name="personaName" type="text" />
+                    </label>
+                  </section>
+
+                  <section class="settings-card">
+                    <div class="section-heading">
+                      <span>锁屏</span>
+                      <strong>第一眼情绪</strong>
+                    </div>
+                    <label class="field-row">
+                      <span>标题</span>
+                      <input class="field-control" name="lockTitle" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>说明</span>
+                      <textarea class="field-control field-control-textarea" name="lockCopy" rows="3"></textarea>
+                    </label>
+                    <label class="field-row">
+                      <span>通知标题</span>
+                      <input class="field-control" name="lockNoticeTitle" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>通知内容</span>
+                      <textarea class="field-control field-control-textarea" name="lockNoticeBody" rows="3"></textarea>
+                    </label>
+                  </section>
+
+                  <section class="settings-card">
+                    <div class="section-heading">
+                      <span>主屏</span>
+                      <strong>两块恋爱组件</strong>
+                    </div>
+                    <label class="field-row">
+                      <span>大卡标题</span>
+                      <input class="field-control" name="primaryWidgetTitle" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>大卡内容</span>
+                      <textarea class="field-control field-control-textarea" name="primaryWidgetBody" rows="3"></textarea>
+                    </label>
+                    <label class="field-row">
+                      <span>小卡标签</span>
+                      <input class="field-control" name="mediaWidgetLabel" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>小卡内容</span>
+                      <textarea class="field-control field-control-textarea" name="mediaWidgetBody" rows="3"></textarea>
+                    </label>
+                    <label class="field-row">
+                      <span>图片链接</span>
+                      <input class="field-control" name="mediaWidgetImage" type="url" placeholder="https://" />
+                    </label>
+                  </section>
+
+                  <section class="settings-card">
+                    <div class="section-heading">
+                      <span>聊天</span>
+                      <strong>列表与单聊</strong>
+                    </div>
+                    <label class="field-row">
+                      <span>列表昵称</span>
+                      <input class="field-control" name="threadName" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>列表预览</span>
+                      <textarea class="field-control field-control-textarea" name="threadPreview" rows="2"></textarea>
+                    </label>
+                    <label class="field-row">
+                      <span>未读数字</span>
+                      <input class="field-control" name="threadBadge" type="text" inputmode="numeric" />
+                    </label>
+                    <label class="field-row">
+                      <span>聊天标题</span>
+                      <input class="field-control" name="chatTitle" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>副标题</span>
+                      <input class="field-control" name="chatSubtitle" type="text" />
+                    </label>
+                    <label class="field-row">
+                      <span>对方气泡</span>
+                      <textarea class="field-control field-control-textarea" name="incomingBubble" rows="3"></textarea>
+                    </label>
+                    <label class="field-row">
+                      <span>你的气泡</span>
+                      <textarea class="field-control field-control-textarea" name="outgoingBubble" rows="3"></textarea>
+                    </label>
+                  </section>
+                </form>
+
+                <section class="settings-card settings-card-actions">
+                  <div class="section-heading">
+                    <span>JSON</span>
+                    <strong>导入与导出</strong>
+                  </div>
+                  <label class="field-row">
+                    <span>粘贴配置</span>
+                    <textarea class="field-control field-control-textarea" id="jsonPayload" rows="6" placeholder="在这里粘贴 JSON 配置"></textarea>
+                  </label>
+                  <label class="field-row field-row-file">
+                    <span>导入文件</span>
+                    <input class="field-control field-control-file" id="jsonFileInput" type="file" accept="application/json" />
+                  </label>
+                  <div class="action-row">
+                    <button class="action-button action-button-primary" id="importJsonButton" type="button">导入 JSON</button>
+                    <button class="action-button" id="exportJsonButton" type="button">导出 JSON</button>
+                    <button class="action-button action-button-soft" id="resetConfigButton" type="button">恢复默认</button>
+                  </div>
+                  <p class="settings-feedback" id="settingsFeedback">配置会自动保存在当前浏览器。</p>
+                </section>
+              </div>
+
+              <button class="home-pill app-pill" id="settingsHomePill" type="button" aria-label="返回主屏"></button>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
     </main>
 
     <script src="./app.js"></script>

@@ -1,270 +1,495 @@
-const screens = [...document.querySelectorAll(".screen")];
-const statusTime = document.getElementById("statusTime");
-const lockTime = document.getElementById("lockTime");
-const configOverlay = document.getElementById("configOverlay");
-
 const storageKey = "milk_mist_love_phone_config_v1";
 
 const defaultConfig = {
-  personaName: "未命名人设",
-  lockTitle: "奶雾恋聊机",
-  lockCopy: "空白人设可导入，聊天内容后续填充。",
-  lockNoticeTitle: "聊天列表占位入口",
-  lockNoticeBody: "后续导入人设和对话后，这里显示第一条暧昧通知。",
-  primaryWidgetTitle: "空白可编辑",
-  primaryWidgetBody: "用于放一句暧昧便签、心情碎片或关系提示。",
-  mediaWidgetLabel: "可换图",
-  mediaWidgetBody: "支持图片、便签图或“为你做”的展示位。",
+  personaName: "未命名关系",
+  lockTitle: "今晚的风比昨天轻一点",
+  lockCopy: "把想说的话先留在这里，等你慢慢写满。",
+  lockNoticeTitle: "消息",
+  lockNoticeBody: "有人在想你，要不要把第一句写得温柔一点。",
+  primaryWidgetTitle: "今天想记住",
+  primaryWidgetBody: "傍晚五点十七分，云有一点粉。",
+  mediaWidgetLabel: "为你做的",
+  mediaWidgetBody: "这里可以放一张图，或者一句只想给某个人看的话。",
   mediaWidgetImage: "",
-  threadName: "未命名对话",
-  threadPreview: "导入人设后显示最近一条消息预览。",
+  threadName: "新消息",
+  threadPreview: "晚一点回也没关系，我还在。",
   threadBadge: "1",
-  chatTitle: "未命名会话",
-  chatSubtitle: "空白人设",
-  incomingBubble: "导入对话后，这里显示对方的第一条消息。",
-  outgoingBubble: "用户编写或导入的人设内容也会从这里开始填充。",
+  chatTitle: "新对话",
+  chatSubtitle: "在线",
+  incomingBubble: "刚刚看到一家很好看的面包店。",
+  outgoingBubble: "下次路过的时候，拍给我看看。"
 };
 
-let config = loadConfig();
+const textKeys = Object.keys(defaultConfig);
 
-const textTargets = {
-  personaName: document.getElementById("personaNameText"),
-  lockTitle: document.getElementById("lockCardTitle"),
-  lockCopy: document.getElementById("lockCardCopy"),
-  lockNoticeTitle: document.getElementById("lockNoticeTitle"),
-  lockNoticeBody: document.getElementById("lockNoticeBody"),
-  primaryWidgetTitle: document.getElementById("primaryWidgetTitle"),
-  primaryWidgetBody: document.getElementById("primaryWidgetBody"),
-  mediaWidgetLabel: document.getElementById("mediaWidgetLabel"),
-  mediaWidgetBody: document.getElementById("mediaWidgetBody"),
-  threadName: document.getElementById("threadName"),
-  threadPreview: document.getElementById("threadPreview"),
-  threadBadge: document.getElementById("threadBadge"),
-  chatTitle: document.getElementById("chatTitle"),
-  chatSubtitle: document.getElementById("chatSubtitle"),
-  incomingBubble: document.getElementById("incomingBubble"),
-  outgoingBubble: document.getElementById("outgoingBubble"),
+const state = {
+  config: loadConfig(),
+  unlocked: false,
+  activeApp: null,
+  messagePage: "list"
 };
 
-const mediaPreview = document.getElementById("mediaWidgetPreview");
-const configStatus = document.getElementById("configStatus");
-
-const fieldBindings = {
-  personaName: "personaNameInput",
-  lockTitle: "lockTitleInput",
-  lockCopy: "lockCopyInput",
-  lockNoticeTitle: "lockNoticeTitleInput",
-  lockNoticeBody: "lockNoticeBodyInput",
-  primaryWidgetTitle: "primaryWidgetTitleInput",
-  primaryWidgetBody: "primaryWidgetBodyInput",
-  mediaWidgetLabel: "mediaWidgetLabelInput",
-  mediaWidgetBody: "mediaWidgetBodyInput",
-  mediaWidgetImage: "mediaWidgetImageInput",
-  threadName: "threadNameInput",
-  threadPreview: "threadPreviewInput",
-  threadBadge: "threadBadgeInput",
-  chatTitle: "chatTitleInput",
-  chatSubtitle: "chatSubtitleInput",
-  incomingBubble: "incomingBubbleInput",
-  outgoingBubble: "outgoingBubbleInput",
+const phoneFrame = document.getElementById("phoneFrame");
+const lockScreen = document.getElementById("lockScreen");
+const lockTime = document.getElementById("lockTime");
+const lockDate = document.getElementById("lockDate");
+const unlockZone = document.getElementById("unlockZone");
+const unlockHandle = document.getElementById("unlockHandle");
+const lockNotification = document.getElementById("lockNotification");
+const messagesShell = document.getElementById("messagesShell");
+const settingsShell = document.getElementById("settingsShell");
+const openThreadButton = document.getElementById("openThreadButton");
+const threadBackButton = document.getElementById("threadBackButton");
+const messagesCloseButton = document.getElementById("messagesCloseButton");
+const messagesHomePill = document.getElementById("messagesHomePill");
+const settingsHomePill = document.getElementById("settingsHomePill");
+const settingsDoneButton = document.getElementById("settingsDoneButton");
+const configForm = document.getElementById("configForm");
+const jsonPayload = document.getElementById("jsonPayload");
+const jsonFileInput = document.getElementById("jsonFileInput");
+const importJsonButton = document.getElementById("importJsonButton");
+const exportJsonButton = document.getElementById("exportJsonButton");
+const resetConfigButton = document.getElementById("resetConfigButton");
+const settingsFeedback = document.getElementById("settingsFeedback");
+const threadBadge = document.getElementById("threadBadge");
+const mediaThumb = document.getElementById("mediaThumb");
+const mediaThumbImage = document.getElementById("mediaThumbImage");
+const messagesWindow = messagesShell.querySelector(".messages-window");
+const appShellMap = {
+  messages: messagesShell,
+  settings: settingsShell
 };
 
-const inputs = Object.fromEntries(
-  Object.entries(fieldBindings).map(([key, id]) => [key, document.getElementById(id)]),
-);
+let dragStartY = 0;
+let dragDistance = 0;
+let draggingLock = false;
+let threadSwipeActive = false;
+let threadSwipePointerId = null;
+let threadSwipeStartX = 0;
+let threadSwipeDistance = 0;
 
-function formatTime(date) {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+renderConfig();
+syncForm();
+updateClock();
+window.setInterval(updateClock, 30000);
+
+bindEvents();
+
+function bindEvents() {
+  document.querySelectorAll("[data-open-app]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const appName = button.dataset.openApp;
+      if (!appName) {
+        return;
+      }
+      openApp(appName, { originEl: button });
+    });
+  });
+
+  lockNotification.addEventListener("click", () => {
+    unlockTo(() => {
+      openApp("messages", { page: "thread", originEl: lockNotification });
+    });
+  });
+
+  unlockZone.addEventListener("pointerdown", startUnlockDrag);
+  unlockZone.addEventListener("click", (event) => {
+    if (event.target === unlockHandle) {
+      return;
+    }
+    if (!state.unlocked) {
+      unlockTo();
+    }
+  });
+  unlockHandle.addEventListener("click", () => {
+    if (!state.unlocked) {
+      unlockTo();
+    }
+  });
+
+  messagesWindow.addEventListener("pointerdown", startThreadSwipe);
+
+  window.addEventListener("pointermove", handlePointerMove);
+  window.addEventListener("pointerup", handlePointerEnd);
+  window.addEventListener("pointercancel", handlePointerEnd);
+
+  openThreadButton.addEventListener("click", () => {
+    setMessagePage("thread");
+  });
+
+  threadBackButton.addEventListener("click", () => {
+    setMessagePage("list");
+  });
+
+  messagesCloseButton.addEventListener("click", () => {
+    closeApp("messages");
+  });
+
+  messagesHomePill.addEventListener("click", () => {
+    closeApp("messages");
+  });
+
+  settingsHomePill.addEventListener("click", () => {
+    closeApp("settings");
+  });
+
+  settingsDoneButton.addEventListener("click", () => {
+    closeApp("settings");
+  });
+
+  configForm.addEventListener("input", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    if (!target.name || !textKeys.includes(target.name)) {
+      return;
+    }
+    state.config[target.name] = cleanValue(target.value);
+    renderConfig();
+    saveConfig(state.config);
+    setFeedback("已保存到当前浏览器。", false);
+  });
+
+  importJsonButton.addEventListener("click", () => {
+    if (!jsonPayload.value.trim()) {
+      setFeedback("先贴一段 JSON 配置，再导入。", true);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(jsonPayload.value);
+      applyImportedConfig(parsed, "已从粘贴内容导入。");
+    } catch (error) {
+      setFeedback("这段 JSON 读不出来，检查一下逗号和引号。", true);
+    }
+  });
+
+  jsonFileInput.addEventListener("change", async () => {
+    const file = jsonFileInput.files?.[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      applyImportedConfig(parsed, "已从文件导入。", text);
+    } catch (error) {
+      setFeedback("这个文件不是可用的 JSON 配置。", true);
+    } finally {
+      jsonFileInput.value = "";
+    }
+  });
+
+  exportJsonButton.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state.config, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "milk-mist-love-phone-config.json";
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setFeedback("当前配置已经导出。", false);
+  });
+
+  resetConfigButton.addEventListener("click", () => {
+    state.config = sanitizeConfig(defaultConfig);
+    renderConfig();
+    syncForm();
+    saveConfig(state.config);
+    jsonPayload.value = JSON.stringify(state.config, null, 2);
+    setFeedback("已经恢复到默认壳。", false);
+  });
 }
 
-function loadConfig() {
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return { ...defaultConfig };
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return { ...defaultConfig };
-    return sanitizeConfig(parsed);
-  } catch (_error) {
-    return { ...defaultConfig };
+function unlockTo(afterUnlock) {
+  if (state.unlocked) {
+    if (typeof afterUnlock === "function") {
+      afterUnlock();
+    }
+    return;
+  }
+
+  state.unlocked = true;
+  phoneFrame.classList.remove("is-dragging-lock");
+  phoneFrame.classList.add("is-unlocked");
+  resetLockDrag();
+
+  if (typeof afterUnlock === "function") {
+    window.setTimeout(afterUnlock, 420);
   }
 }
 
-function sanitizeConfig(source) {
-  const next = { ...defaultConfig };
-  Object.keys(defaultConfig).forEach((key) => {
-    const value = source[key];
-    if (value === undefined || value === null) return;
-    next[key] = String(value);
+function handlePointerMove(event) {
+  moveUnlockDrag(event);
+  moveThreadSwipe(event);
+}
+
+function handlePointerEnd(event) {
+  endUnlockDrag();
+  endThreadSwipe(event);
+}
+
+function startUnlockDrag(event) {
+  if (state.unlocked) {
+    return;
+  }
+  draggingLock = true;
+  dragStartY = event.clientY;
+  dragDistance = 0;
+  phoneFrame.classList.add("is-dragging-lock");
+}
+
+function moveUnlockDrag(event) {
+  if (!draggingLock || state.unlocked) {
+    return;
+  }
+  dragDistance = Math.max(0, dragStartY - event.clientY);
+  const capped = Math.min(dragDistance, 220);
+  const opacity = Math.max(0.18, 1 - capped / 200);
+  phoneFrame.style.setProperty("--lock-slide", `${-capped}px`);
+  phoneFrame.style.setProperty("--lock-opacity", `${opacity}`);
+}
+
+function endUnlockDrag() {
+  if (!draggingLock) {
+    return;
+  }
+  draggingLock = false;
+  phoneFrame.classList.remove("is-dragging-lock");
+  if (dragDistance > 110) {
+    unlockTo();
+    return;
+  }
+  resetLockDrag();
+}
+
+function resetLockDrag() {
+  dragDistance = 0;
+  phoneFrame.style.setProperty("--lock-slide", "0px");
+  phoneFrame.style.setProperty("--lock-opacity", "1");
+}
+
+function startThreadSwipe(event) {
+  if (state.activeApp !== "messages" || state.messagePage !== "thread") {
+    return;
+  }
+
+  const rect = messagesWindow.getBoundingClientRect();
+  if (event.clientX - rect.left > 32) {
+    return;
+  }
+
+  threadSwipeActive = true;
+  threadSwipePointerId = event.pointerId;
+  threadSwipeStartX = event.clientX;
+  threadSwipeDistance = 0;
+  messagesShell.classList.add("is-edge-swiping");
+}
+
+function moveThreadSwipe(event) {
+  if (!threadSwipeActive || event.pointerId !== threadSwipePointerId) {
+    return;
+  }
+
+  threadSwipeDistance = Math.max(0, Math.min(event.clientX - threadSwipeStartX, 180));
+  messagesShell.style.setProperty("--thread-peek", `${threadSwipeDistance}px`);
+}
+
+function endThreadSwipe(event) {
+  if (!threadSwipeActive) {
+    return;
+  }
+
+  if (event && event.pointerId !== undefined && event.pointerId !== threadSwipePointerId) {
+    return;
+  }
+
+  const shouldGoBack = threadSwipeDistance > 92;
+  resetThreadSwipe();
+  if (shouldGoBack) {
+    setMessagePage("list");
+  }
+}
+
+function resetThreadSwipe() {
+  threadSwipeActive = false;
+  threadSwipePointerId = null;
+  threadSwipeStartX = 0;
+  threadSwipeDistance = 0;
+  messagesShell.classList.remove("is-edge-swiping");
+  messagesShell.style.setProperty("--thread-peek", "0px");
+}
+
+function openApp(appName, options = {}) {
+  unlockTo(() => {
+    const shell = appShellMap[appName];
+    if (!shell) {
+      return;
+    }
+
+    if (state.activeApp && state.activeApp !== appName) {
+      const previousShell = appShellMap[state.activeApp];
+      previousShell?.classList.remove("is-open");
+      previousShell?.setAttribute("aria-hidden", "true");
+    }
+
+    if (options.originEl instanceof HTMLElement) {
+      setOriginFromElement(shell, options.originEl);
+    }
+
+    state.activeApp = appName;
+    phoneFrame.classList.add("has-open-app");
+    shell.classList.add("is-open");
+    shell.setAttribute("aria-hidden", "false");
+
+    if (appName === "messages") {
+      setMessagePage(options.page || "list");
+    }
   });
-  return next;
 }
 
-function saveConfig() {
-  window.localStorage.setItem(storageKey, JSON.stringify(config, null, 2));
+function closeApp(appName) {
+  const targetApp = appName || state.activeApp;
+  const shell = appShellMap[targetApp];
+  if (!shell) {
+    return;
+  }
+
+  shell.classList.remove("is-open");
+  shell.setAttribute("aria-hidden", "true");
+
+  if (targetApp === "messages") {
+    setMessagePage("list");
+    resetThreadSwipe();
+  }
+
+  if (state.activeApp === targetApp) {
+    state.activeApp = null;
+  }
+
+  phoneFrame.classList.toggle("has-open-app", Boolean(state.activeApp));
 }
 
-function renderTime() {
-  const value = formatTime(new Date());
-  if (statusTime) statusTime.textContent = value;
-  if (lockTime) lockTime.textContent = value;
+function setMessagePage(page) {
+  state.messagePage = page;
+  messagesShell.dataset.page = page;
 }
 
-function setScreen(screenName) {
-  screens.forEach((screen) => {
-    screen.classList.toggle(
-      "is-active",
-      screen.dataset.screen === screenName,
-    );
+function setOriginFromElement(shell, element) {
+  const shellRect = phoneFrame.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
+  const x = rect.left + rect.width / 2 - shellRect.left;
+  const y = rect.top + rect.height / 2 - shellRect.top;
+  shell.style.setProperty("--origin-x", `${x}px`);
+  shell.style.setProperty("--origin-y", `${y}px`);
+}
+
+function updateClock() {
+  const now = new Date();
+  const timeText = now.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+  const dateText = now.toLocaleDateString("zh-CN", {
+    month: "long",
+    day: "numeric",
+    weekday: "long"
+  });
+
+  lockTime.textContent = timeText;
+  lockDate.textContent = dateText;
+  document.querySelectorAll("[data-clock]").forEach((node) => {
+    node.textContent = timeText;
   });
 }
 
 function renderConfig() {
-  Object.entries(textTargets).forEach(([key, element]) => {
-    if (element) element.textContent = config[key];
+  document.querySelectorAll("[data-bind]").forEach((node) => {
+    const key = node.dataset.bind;
+    if (!key) {
+      return;
+    }
+    node.textContent = state.config[key] || "";
   });
 
-  if (mediaPreview) {
-    const image = config.mediaWidgetImage.trim();
-    if (image) {
-      mediaPreview.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)), url("${image}")`;
-      mediaPreview.style.backgroundSize = "cover";
-      mediaPreview.style.backgroundPosition = "center";
-      mediaPreview.style.color = "#ffffff";
-    } else {
-      mediaPreview.style.backgroundImage =
-        "linear-gradient(135deg, rgba(248, 224, 225, 0.9), rgba(255, 255, 255, 0.9))";
-      mediaPreview.style.backgroundSize = "";
-      mediaPreview.style.backgroundPosition = "";
-      mediaPreview.style.color = "";
-    }
-  }
+  const badgeValue = cleanValue(state.config.threadBadge);
+  threadBadge.textContent = badgeValue;
+  threadBadge.classList.toggle("is-hidden", badgeValue.length === 0);
 
-  if (textTargets.threadBadge) {
-    const badge = config.threadBadge.trim();
-    const normalized = Number.parseInt(badge || "0", 10);
-    if (!badge || Number.isNaN(normalized) || normalized <= 0) {
-      textTargets.threadBadge.hidden = true;
-    } else {
-      textTargets.threadBadge.hidden = false;
-      textTargets.threadBadge.textContent = String(Math.min(normalized, 99));
-    }
+  const avatarSource = cleanValue(state.config.threadName) || cleanValue(state.config.personaName) || "聊";
+  const avatarLetter = avatarSource.charAt(0);
+  document.querySelectorAll("[data-avatar-letter]").forEach((node) => {
+    node.textContent = avatarLetter;
+  });
+
+  const imageUrl = cleanValue(state.config.mediaWidgetImage);
+  if (imageUrl) {
+    mediaThumb.classList.add("has-image");
+    mediaThumbImage.src = imageUrl;
+  } else {
+    mediaThumb.classList.remove("has-image");
+    mediaThumbImage.removeAttribute("src");
   }
 }
 
 function syncForm() {
-  Object.entries(inputs).forEach(([key, input]) => {
-    if (!input) return;
-    input.value = config[key];
+  Array.from(configForm.elements).forEach((field) => {
+    if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    if (!field.name || !textKeys.includes(field.name)) {
+      return;
+    }
+    field.value = state.config[field.name] || "";
   });
+
+  jsonPayload.value = JSON.stringify(state.config, null, 2);
 }
 
-function setStatus(message) {
-  if (configStatus) configStatus.textContent = message;
-}
-
-function openConfigPanel() {
-  syncForm();
-  if (configOverlay) configOverlay.hidden = false;
-  document.body.classList.add("config-open");
-}
-
-function closeConfigPanel() {
-  if (configOverlay) configOverlay.hidden = true;
-  document.body.classList.remove("config-open");
-}
-
-function applyImportedConfig(source, message) {
-  config = sanitizeConfig(source);
-  saveConfig();
+function applyImportedConfig(rawConfig, feedbackText, rawText) {
+  state.config = sanitizeConfig(rawConfig);
   renderConfig();
   syncForm();
-  setStatus(message);
+  saveConfig(state.config);
+  if (typeof rawText === "string") {
+    jsonPayload.value = rawText;
+  }
+  setFeedback(feedbackText, false);
 }
 
-function exportConfig() {
-  const blob = new Blob([JSON.stringify(config, null, 2)], {
-    type: "application/json",
+function sanitizeConfig(rawConfig) {
+  const nextConfig = {};
+  textKeys.forEach((key) => {
+    const value = rawConfig && typeof rawConfig === "object" ? rawConfig[key] : defaultConfig[key];
+    nextConfig[key] = cleanValue(value || defaultConfig[key]);
   });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "milk-mist-love-phone-persona.json";
-  document.body.append(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-  setStatus("已导出当前人设配置 JSON。");
+  return nextConfig;
 }
 
-document.addEventListener("click", (event) => {
-  const target = event.target.closest("[data-open-screen]");
-  if (!target) return;
-  const nextScreen = target.getAttribute("data-open-screen");
-  if (nextScreen) setScreen(nextScreen);
-});
+function cleanValue(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
 
-document.getElementById("openConfigPanel")?.addEventListener("click", openConfigPanel);
-document.getElementById("closeConfigPanel")?.addEventListener("click", closeConfigPanel);
+function saveConfig(config) {
+  window.localStorage.setItem(storageKey, JSON.stringify(config));
+}
 
-configOverlay?.addEventListener("click", (event) => {
-  if (event.target === configOverlay) closeConfigPanel();
-});
-
-Object.entries(inputs).forEach(([key, input]) => {
-  if (!input) return;
-  input.addEventListener("input", () => {
-    config[key] = input.value;
-    saveConfig();
-    renderConfig();
-    setStatus("表单内容已实时保存到本地。");
-  });
-});
-
-document.getElementById("importJsonBtn")?.addEventListener("click", () => {
-  const textarea = document.getElementById("jsonConfigInput");
-  if (!textarea || !textarea.value.trim()) {
-    setStatus("请先粘贴 JSON 内容。");
-    return;
-  }
+function loadConfig() {
   try {
-    const parsed = JSON.parse(textarea.value);
-    applyImportedConfig(parsed, "JSON 文本导入成功。");
-  } catch (_error) {
-    setStatus("JSON 解析失败，请检查格式。");
+    const saved = window.localStorage.getItem(storageKey);
+    if (!saved) {
+      return sanitizeConfig(defaultConfig);
+    }
+    return sanitizeConfig(JSON.parse(saved));
+  } catch (error) {
+    return sanitizeConfig(defaultConfig);
   }
-});
+}
 
-document.getElementById("importFileBtn")?.addEventListener("click", () => {
-  document.getElementById("jsonFileInput")?.click();
-});
-
-document.getElementById("jsonFileInput")?.addEventListener("change", async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  try {
-    const content = await file.text();
-    const parsed = JSON.parse(content);
-    applyImportedConfig(parsed, "JSON 文件导入成功。");
-  } catch (_error) {
-    setStatus("文件读取或 JSON 解析失败。");
-  }
-  event.target.value = "";
-});
-
-document.getElementById("exportJsonBtn")?.addEventListener("click", exportConfig);
-
-document.getElementById("resetConfigBtn")?.addEventListener("click", () => {
-  if (!window.confirm("确定恢复为默认人设配置吗？")) return;
-  config = { ...defaultConfig };
-  saveConfig();
-  renderConfig();
-  syncForm();
-  setStatus("已恢复默认配置。");
-});
-
-renderConfig();
-syncForm();
-renderTime();
-setInterval(renderTime, 30000);
+function setFeedback(message, isError) {
+  settingsFeedback.textContent = message;
+  settingsFeedback.style.color = isError ? "#d93025" : "rgba(33, 24, 29, 0.62)";
+}
