@@ -803,30 +803,26 @@ function updateClock(){
 updateClock();setInterval(updateClock,10000);
 renderMsgList();renderContacts();
 
-// 检测是否在 iframe 内，若是则切换为嵌入模式
-function initEmbedMode() {
-  if (window.self === window.top) return;
-
-  document.body.style.cssText = 'margin:0;padding:0;background:transparent;display:block;width:100%;height:100%;overflow:hidden;';
-  const phone = document.querySelector('.phone');
-  if (phone) phone.style.cssText = 'width:100%;height:100%;height:100dvh;border-radius:0;box-shadow:none;';
-
-  const backToHome = document.querySelector('.back-to-home');
-  if (backToHome) backToHome.style.display = 'none';
-
-  // 拦截所有返回主页的按钮，统一用 postMessage
-  document.querySelectorAll('.back-to-parent').forEach(el => {
-    el.addEventListener('click', e => {
-      e.preventDefault();
-      window.parent.postMessage('close-app', '*');
-    });
+// iframe 嵌入模式：用事件委托拦截返回按钮，不依赖加载时机
+if (window.self !== window.top) {
+  // 样式铺满
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.style.cssText = 'margin:0;padding:0;background:transparent;display:block;width:100%;height:100%;overflow:hidden;';
+    const phone = document.querySelector('.phone');
+    if (phone) phone.style.cssText = 'width:100%;height:100dvh;border-radius:0;box-shadow:none;';
+    const backToHome = document.querySelector('.back-to-home');
+    if (backToHome) backToHome.style.display = 'none';
   });
-}
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initEmbedMode);
-} else {
-  initEmbedMode();
+  // 事件委托：任何 .back-to-parent 点击都发 postMessage
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.back-to-parent');
+    if (btn) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.parent.postMessage('close-app', '*');
+    }
+  }, true); // 捕获阶段，确保最先执行
 }
 </script>
 </body>
