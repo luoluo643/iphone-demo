@@ -14,6 +14,7 @@
   --arcade-mint: #b7ffd8;
   --arcade-lemon: #fff0a7;
   --pixel-line: rgba(214, 156, 207, 0.22);
+  --pixel-shadow: rgba(211, 142, 198, 0.26);
   --shadow-phone: 0 34px 90px rgba(82, 48, 62, 0.24);
   --shadow-card: 0 18px 42px rgba(126, 86, 102, 0.16);
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
@@ -100,7 +101,8 @@ button {
   box-shadow:
     var(--shadow-phone),
     0 0 0 5px rgba(255, 200, 228, 0.22),
-    0 0 0 12px rgba(255, 255, 255, 0.08);
+    0 0 0 12px rgba(255, 255, 255, 0.08),
+    18px 18px 0 -8px rgba(255, 184, 222, 0.18);
   overflow: hidden;
 }
 
@@ -117,13 +119,17 @@ button {
 .phone-frame::after {
   content: "";
   position: absolute;
-  inset: 14px 14px auto;
-  height: 12px;
+  inset: 14px 32px auto;
+  height: 16px;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.08)),
     repeating-linear-gradient(90deg, rgba(255, 184, 222, 0.3) 0 8px, transparent 8px 14px);
-  opacity: 0.44;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 6px 16px rgba(255, 184, 222, 0.16);
+  opacity: 0.62;
   pointer-events: none;
 }
 
@@ -139,6 +145,9 @@ button {
   isolation: isolate;
   background:
     linear-gradient(180deg, rgba(255, 242, 247, 0.96) 0%, rgba(250, 246, 255, 0.98) 44%, rgba(252, 243, 247, 0.98) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+    inset 0 0 0 8px rgba(255, 195, 228, 0.08);
 }
 
 .screen-surface::before,
@@ -320,6 +329,24 @@ button {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+.lock-screen::after,
+.home-screen::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  right: 24px;
+  top: 112px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    -12px 12px 0 rgba(255, 241, 167, 0.92),
+    -84px 462px 0 rgba(183, 255, 216, 0.94),
+    -42px 468px 0 rgba(216, 177, 255, 0.92),
+    -270px 520px 0 rgba(147, 233, 255, 0.96);
+  opacity: 0.72;
   pointer-events: none;
 }
 
@@ -516,6 +543,7 @@ button {
 }
 
 .widget-card {
+  position: relative;
   border-radius: 28px;
   padding: 18px;
   text-align: left;
@@ -528,6 +556,21 @@ button {
     0 0 0 2px rgba(255, 189, 227, 0.12);
   display: grid;
   gap: 10px;
+}
+
+.widget-card::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    8px 0 0 rgba(255, 184, 222, 0.86),
+    0 8px 0 rgba(147, 233, 255, 0.82),
+    8px 8px 0 rgba(255, 241, 167, 0.84);
+  opacity: 0.74;
 }
 
 .widget-large {
@@ -631,7 +674,8 @@ button {
   box-shadow:
     0 14px 22px rgba(74, 45, 57, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.76),
-    0 0 0 2px rgba(255, 188, 226, 0.16);
+    0 0 0 2px rgba(255, 188, 226, 0.16),
+    4px 4px 0 -1px var(--pixel-shadow);
   overflow: hidden;
 }
 
@@ -869,6 +913,7 @@ button {
 }
 
 .dock {
+  position: relative;
   margin-top: auto;
   padding: 14px 18px;
   border-radius: 30px;
@@ -883,6 +928,19 @@ button {
   box-shadow:
     var(--shadow-card),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.dock::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 8px;
+  height: 4px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 184, 222, 0.62) 0 10px, rgba(147, 233, 255, 0.56) 10px 20px, rgba(255, 241, 167, 0.58) 20px 30px, rgba(216, 177, 255, 0.54) 30px 40px);
+  opacity: 0.62;
 }
 
 .home-pill-home {
@@ -1012,6 +1070,7 @@ button {
 }
 
 .chat-group {
+  position: relative;
   margin-top: 18px;
   border: 1px solid rgba(255, 255, 255, 0.92);
   background:
@@ -1022,6 +1081,19 @@ button {
     0 24px 44px rgba(72, 108, 141, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.66);
   overflow: hidden;
+}
+
+.chat-group::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 12px;
+  height: 6px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 184, 222, 0.74) 0 12px, rgba(147, 233, 255, 0.62) 12px 24px, rgba(255, 241, 167, 0.7) 24px 36px);
+  opacity: 0.52;
 }
 
 .chat-row {
@@ -1187,6 +1259,7 @@ button {
 }
 
 .thread-input-shell {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1196,6 +1269,19 @@ button {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 240, 248, 0.74));
   backdrop-filter: blur(18px);
+}
+
+.thread-input-shell::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 184, 222, 0.6) 0 8px, rgba(147, 233, 255, 0.56) 8px 16px, transparent 16px 24px);
+  opacity: 0.42;
 }
 
 .thread-input {
@@ -1267,6 +1353,7 @@ button {
 
 .settings-hero-card,
 .settings-card {
+  position: relative;
   border-radius: 28px;
   padding: 18px;
   border: 1px solid rgba(255, 255, 255, 0.88);
@@ -1275,6 +1362,22 @@ button {
     var(--shadow-card),
     inset 0 1px 0 rgba(255, 255, 255, 0.82),
     0 0 0 2px rgba(255, 187, 224, 0.08);
+}
+
+.settings-hero-card::after,
+.settings-card::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    -8px 0 0 rgba(255, 184, 222, 0.82),
+    0 -8px 0 rgba(147, 233, 255, 0.8),
+    -8px -8px 0 rgba(255, 241, 167, 0.78);
+  opacity: 0.68;
 }
 
 .settings-hero-card {
