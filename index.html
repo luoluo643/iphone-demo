@@ -723,11 +723,11 @@
         color: #fff;
       }
 
-      /* 全屏 iframe overlay */
+      /* 全屏 iframe overlay —— 挂在 .iphone 上，不受 .screen overflow:hidden 影响 */
       .iframe-overlay {
         position: absolute;
         inset: 0;
-        z-index: 5;
+        z-index: 10;
         background: #fff;
         transform: translateY(100%);
         transition: transform 420ms cubic-bezier(.22,1,.36,1);
@@ -1286,11 +1286,6 @@
               </div>
             </section>
 
-            <!-- 全屏 iframe 层（消息等带 url 的 app） -->
-            <div class="iframe-overlay" id="iframeOverlay" hidden>
-              <iframe id="appIframe" src="" style="width:100%;height:100%;border:none;display:block;" allow="autoplay"></iframe>
-            </div>
-
             <section class="app-overlay" hidden>
               <article class="app-card">
                 <div class="app-head">
@@ -1341,6 +1336,11 @@
               </div>
             </section>
           </section>
+
+          <!-- 全屏 iframe 层：在 .iphone 内、.screen 外，避免被 overflow:hidden 裁切 -->
+          <div class="iframe-overlay" id="iframeOverlay" hidden>
+            <iframe id="appIframe" src="" style="width:100%;height:100%;border:none;display:block;" allow="autoplay"></iframe>
+          </div>
         </div>
       </section>
     </main>
