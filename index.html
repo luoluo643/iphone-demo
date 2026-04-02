@@ -723,6 +723,19 @@
         color: #fff;
       }
 
+      /* 全屏 iframe overlay */
+      .iframe-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        background: #fff;
+        transform: translateY(100%);
+        transition: transform 420ms cubic-bezier(.22,1,.36,1);
+      }
+      .iframe-overlay.is-open {
+        transform: translateY(0);
+      }
+
       .control-overlay,
       .app-overlay {
         position: absolute;
@@ -1273,6 +1286,11 @@
               </div>
             </section>
 
+            <!-- 全屏 iframe 层（消息等带 url 的 app） -->
+            <div class="iframe-overlay" id="iframeOverlay" hidden>
+              <iframe id="appIframe" src="" style="width:100%;height:100%;border:none;display:block;" allow="autoplay"></iframe>
+            </div>
+
             <section class="app-overlay" hidden>
               <article class="app-card">
                 <div class="app-head">
@@ -1676,19 +1694,12 @@
         const appBody = document.getElementById("app-body");
 
         if (app.url) {
-          // 全屏 iframe 方式打开内嵌 app
-          appOverlay.classList.add("is-fullscreen");
-          const card = appOverlay.querySelector(".app-card");
-          card.style.cssText = "";
-          const head = appOverlay.querySelector(".app-head");
-          head.style.cssText = "";
-          appBody.style.cssText = "margin:0;padding:0;height:100%;overflow:hidden;";
-          appBody.innerHTML = `<iframe src="${app.url}" style="width:100%;height:100%;border:none;display:block;" allow="autoplay"></iframe>`;
-          appOverlay.hidden = false;
-          requestAnimationFrame(() => {
-            appOverlay.classList.add("is-visible");
-          });
-          log(app.title, `从${source}打开 · ${timeFormatter.format(new Date())}`);
+          // 用独立 iframe-overlay 全屏打开，不影响主屏尺寸
+          const overlay = document.getElementById("iframeOverlay");
+          const iframe = document.getElementById("appIframe");
+          iframe.src = app.url;
+          overlay.hidden = false;
+          requestAnimationFrame(() => overlay.classList.add("is-open"));
           return;
         }
 
@@ -1825,7 +1836,13 @@
       // 监听 iframe 内嵌 app 发来的关闭消息
       window.addEventListener("message", (e) => {
         if (e.data === "close-app") {
-          closeApp();
+          const overlay = document.getElementById("iframeOverlay");
+          const iframe = document.getElementById("appIframe");
+          overlay.classList.remove("is-open");
+          setTimeout(() => {
+            overlay.hidden = true;
+            iframe.src = "";
+          }, 420);
         }
       });
     </script>
