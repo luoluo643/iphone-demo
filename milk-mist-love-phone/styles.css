@@ -128,7 +128,7 @@ button {
   border-radius: 34px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0)) center top / calc(100% - 18px) 20px no-repeat,
-    linear-gradient(180deg, rgba(255, 229, 240, 0.36), rgba(255, 255, 255, 0.04)) center bottom / calc(100% - 30px) 70px no-repeat,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.18)) center bottom / calc(100% - 30px) 2px no-repeat,
     radial-gradient(circle at 18px 18px, rgba(255, 255, 255, 0.62) 0 3px, transparent 4px),
     radial-gradient(circle at calc(100% - 18px) 18px, rgba(255, 255, 255, 0.62) 0 3px, transparent 4px),
     radial-gradient(circle at 18px calc(100% - 18px), rgba(255, 255, 255, 0.38) 0 3px, transparent 4px),
@@ -152,7 +152,7 @@ button {
   overflow: hidden;
   isolation: isolate;
   background:
-    linear-gradient(180deg, rgba(255, 244, 248, 0.98) 0%, rgba(251, 248, 255, 0.98) 42%, rgba(244, 228, 236, 0.98) 72%, rgba(126, 101, 114, 0.98) 100%);
+    linear-gradient(180deg, rgba(255, 244, 248, 0.98) 0%, rgba(251, 248, 255, 0.98) 46%, rgba(252, 244, 248, 0.98) 100%);
   border: 1px solid rgba(255, 255, 255, 0.58);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.72),
@@ -181,12 +181,11 @@ button {
 }
 
 .screen-surface::after {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 10%, transparent 62%, rgba(84, 62, 73, 0.28) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 10%, transparent 90%, rgba(255, 255, 255, 0.14));
   border-radius: inherit;
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.24),
-    inset 0 0 0 16px rgba(255, 220, 235, 0.05),
-    inset 0 -120px 120px rgba(84, 62, 73, 0.26);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.34),
+    inset 0 0 0 16px rgba(255, 220, 235, 0.12);
   z-index: -1;
   transition: background 280ms ease, backdrop-filter 280ms ease, opacity 280ms ease;
 }
