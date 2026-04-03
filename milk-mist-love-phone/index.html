@@ -158,39 +158,111 @@
                   </header>
 
                   <div class="qq-search-bar">搜索</div>
+                  <div class="messages-tabs" aria-hidden="true">
+                    <span class="messages-tab is-active">全部</span>
+                    <span class="messages-tab">在线</span>
+                    <span class="messages-tab">特别关心</span>
+                  </div>
 
                   <div class="chat-group">
                     <button class="chat-row chat-row-primary" id="openThreadButton" type="button">
-                      <div class="chat-avatar chat-avatar-primary" data-avatar-letter>聊</div>
+                      <div class="chat-avatar-wrap">
+                        <div class="chat-avatar chat-avatar-primary" data-avatar-letter>聊</div>
+                        <span class="chat-online-dot"></span>
+                      </div>
                       <div class="chat-main">
                         <div class="chat-meta">
                           <strong data-bind="threadName">新消息</strong>
-                          <span>刚刚</span>
+                          <span class="chat-tag chat-tag-special">特别关心</span>
                         </div>
                         <p data-bind="threadPreview">晚一点回也没关系，我还在。</p>
+                        <div class="chat-subline">
+                          <span data-bind="chatSubtitle">在线</span>
+                          <span>刚刚回过你</span>
+                        </div>
                       </div>
-                      <span class="chat-badge" id="threadBadge" data-bind="threadBadge">1</span>
+                      <div class="chat-side">
+                        <span class="chat-time">刚刚</span>
+                        <span class="chat-badge" id="threadBadge" data-bind="threadBadge">1</span>
+                      </div>
                     </button>
 
                     <div class="chat-row chat-row-muted">
-                      <div class="chat-avatar chat-avatar-soft">新</div>
+                      <div class="chat-avatar-wrap">
+                        <div class="chat-avatar chat-avatar-soft">群</div>
+                      </div>
                       <div class="chat-main">
                         <div class="chat-meta">
-                          <strong>新的朋友</strong>
-                          <span>昨天</span>
+                          <strong>宿舍小群（3）</strong>
+                          <span class="chat-tag chat-tag-group">群聊</span>
                         </div>
-                        <p>一条新的好友申请，先别着急回应。</p>
+                        <p>[阿宁]: 今晚点外卖要不要顺便帮你带一份？</p>
+                        <div class="chat-subline">
+                          <span>3条未读</span>
+                          <span>有人@你</span>
+                        </div>
+                      </div>
+                      <div class="chat-side">
+                        <span class="chat-time">18:24</span>
+                        <span class="chat-badge chat-badge-soft">3</span>
                       </div>
                     </div>
 
                     <div class="chat-row chat-row-muted">
-                      <div class="chat-avatar chat-avatar-soft">空</div>
+                      <div class="chat-avatar-wrap">
+                        <div class="chat-avatar chat-avatar-soft">传</div>
+                      </div>
                       <div class="chat-main">
                         <div class="chat-meta">
-                          <strong>空间提醒</strong>
-                          <span>周一</span>
+                          <strong>文件传输助手</strong>
                         </div>
-                        <p>有人给你的最近动态点了一个赞。</p>
+                        <p>你收到了一张图片：IMG_0403.PNG</p>
+                        <div class="chat-subline">
+                          <span>图片 1 张</span>
+                          <span>可转发</span>
+                        </div>
+                      </div>
+                      <div class="chat-side">
+                        <span class="chat-time">昨天</span>
+                      </div>
+                    </div>
+
+                    <div class="chat-row chat-row-muted">
+                      <div class="chat-avatar-wrap">
+                        <div class="chat-avatar chat-avatar-soft">邮</div>
+                      </div>
+                      <div class="chat-main">
+                        <div class="chat-meta">
+                          <strong>QQ邮箱提醒</strong>
+                          <span class="chat-tag chat-tag-system">系统</span>
+                        </div>
+                        <p>你有一封新的邮件：面试时间确认</p>
+                        <div class="chat-subline">
+                          <span>未读邮件</span>
+                          <span>17:02</span>
+                        </div>
+                      </div>
+                      <div class="chat-side">
+                        <span class="chat-time">17:02</span>
+                      </div>
+                    </div>
+
+                    <div class="chat-row chat-row-muted">
+                      <div class="chat-avatar-wrap">
+                        <div class="chat-avatar chat-avatar-soft">新</div>
+                      </div>
+                      <div class="chat-main">
+                        <div class="chat-meta">
+                          <strong>新的朋友</strong>
+                        </div>
+                        <p>「晚风收信机」通过了你的好友申请</p>
+                        <div class="chat-subline">
+                          <span>好友通知</span>
+                          <span>昨晚</span>
+                        </div>
+                      </div>
+                      <div class="chat-side">
+                        <span class="chat-time">昨晚</span>
                       </div>
                     </div>
                   </div>
@@ -207,8 +279,51 @@
                   </header>
 
                   <div class="thread-scene">
-                    <div class="chat-bubble chat-bubble-incoming" data-bind="incomingBubble">刚刚看到一家很好看的面包店。</div>
-                    <div class="chat-bubble chat-bubble-outgoing" data-bind="outgoingBubble">下次路过的时候，拍给我看看。</div>
+                    <div class="thread-day">今天 13:42</div>
+
+                    <div class="message-group message-group-incoming">
+                      <div class="thread-avatar thread-avatar-incoming" data-avatar-letter>聊</div>
+                      <div class="message-stack">
+                        <span class="message-name" data-bind="chatTitle">新对话</span>
+                        <div class="chat-bubble chat-bubble-incoming">刚下地铁，外面风有点大。</div>
+                        <div class="chat-bubble chat-bubble-incoming" data-bind="incomingBubble">刚刚看到一家很好看的面包店。</div>
+                      </div>
+                    </div>
+
+                    <div class="message-group message-group-outgoing">
+                      <div class="message-stack">
+                        <div class="chat-bubble chat-bubble-outgoing">我这边刚点完喝的。</div>
+                        <div class="chat-bubble chat-bubble-outgoing" data-bind="outgoingBubble">下次路过的时候，拍给我看看。</div>
+                        <span class="chat-bubble-meta">已送达</span>
+                      </div>
+                    </div>
+
+                    <div class="thread-system-tip">你们已互加好友 3 天，可以互相发起语音通话。</div>
+
+                    <div class="message-group message-group-incoming">
+                      <div class="thread-avatar thread-avatar-incoming" data-avatar-letter>聊</div>
+                      <div class="message-stack">
+                        <div class="chat-bubble chat-bubble-incoming chat-bubble-soft">
+                          <span class="chat-voice-chip">语音 00:09</span>
+                        </div>
+                        <div class="chat-bubble chat-bubble-incoming chat-photo-card">
+                          <div class="chat-photo-grid">
+                            <span class="chat-photo-pill">奶茶</span>
+                            <span class="chat-photo-pill">晚霞</span>
+                            <span class="chat-photo-pill">下次见</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="thread-day">18:21</div>
+
+                    <div class="message-group message-group-outgoing">
+                      <div class="message-stack">
+                        <div class="chat-bubble chat-bubble-outgoing">那我等你，到了给我发个定位。</div>
+                        <span class="chat-bubble-meta">对方正在输入...</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="thread-toolbar">
