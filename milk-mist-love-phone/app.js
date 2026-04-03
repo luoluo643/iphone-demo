@@ -383,12 +383,28 @@ function setMessagePage(page) {
 }
 
 function setOriginFromElement(shell, element) {
-  const shellRect = phoneFrame.getBoundingClientRect();
+  const frameRect = phoneFrame.getBoundingClientRect();
+  const shellStyle = window.getComputedStyle(shell);
+  const insetLeft = parseFloat(shellStyle.left) || 0;
+  const insetRight = parseFloat(shellStyle.right) || 0;
+  const insetTop = parseFloat(shellStyle.top) || 0;
+  const insetBottom = parseFloat(shellStyle.bottom) || 0;
+  const shellWidth = frameRect.width - insetLeft - insetRight;
+  const shellHeight = frameRect.height - insetTop - insetBottom;
   const rect = element.getBoundingClientRect();
-  const x = rect.left + rect.width / 2 - shellRect.left;
-  const y = rect.top + rect.height / 2 - shellRect.top;
-  shell.style.setProperty("--origin-x", `${x}px`);
-  shell.style.setProperty("--origin-y", `${y}px`);
+  const iconCenterX = rect.left + rect.width / 2;
+  const iconCenterY = rect.top + rect.height / 2;
+  const shellCenterX = frameRect.left + insetLeft + shellWidth / 2;
+  const shellCenterY = frameRect.top + insetTop + shellHeight / 2;
+  const launchX = iconCenterX - shellCenterX;
+  const launchY = iconCenterY - shellCenterY;
+  const scaleX = Math.max(0.18, rect.width / shellWidth);
+  const scaleY = Math.max(0.18, rect.height / shellHeight);
+
+  shell.style.setProperty("--launch-x", `${launchX}px`);
+  shell.style.setProperty("--launch-y", `${launchY}px`);
+  shell.style.setProperty("--launch-scale-x", `${scaleX}`);
+  shell.style.setProperty("--launch-scale-y", `${scaleY}`);
 }
 
 function updateClock() {
