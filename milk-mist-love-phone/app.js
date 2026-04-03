@@ -92,7 +92,7 @@ function bindEvents() {
     });
   });
 
-  unlockZone.addEventListener("pointerdown", startUnlockDrag);
+  lockScreen.addEventListener("pointerdown", startUnlockDrag);
   unlockZone.addEventListener("click", (event) => {
     if (event.target === unlockHandle) {
       return;
@@ -233,6 +233,11 @@ function handlePointerEnd(event) {
 
 function startUnlockDrag(event) {
   if (state.unlocked) {
+    return;
+  }
+  const unlockRect = unlockZone.getBoundingClientRect();
+  const swipeZoneTop = unlockRect.top - 36;
+  if (event.clientY < swipeZoneTop) {
     return;
   }
   draggingLock = true;
