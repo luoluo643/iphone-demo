@@ -211,7 +211,7 @@ button {
 .base-screen,
 .app-shell {
   position: absolute;
-  inset: 14px 12px 18px;
+  inset: 14px 12px 0;
   border-radius: 30px;
   overflow: hidden;
   box-shadow:
