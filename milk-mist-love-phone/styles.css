@@ -1,4 +1,14 @@
-@import url("https://fontsapi.zeoseven.com/570/main/result.css");
+@font-face {
+  font-family: "Fusion Pixel";
+  src: url("./assets/fonts/fusion-pixel-12px-monospaced-zh_hans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fusion Pixel";
+  src: url("./assets/fonts/fusion-pixel-12px-monospaced-latin.woff2") format("woff2");
+  font-display: swap;
+}
 
 :root {
   color-scheme: light;
@@ -33,7 +43,7 @@ body {
 }
 
 body {
-  font-family: "Fusion Pixel 12px M zh_hans", "Fusion Pixel 12px M latin", "PingFang SC", sans-serif;
+  font-family: "Fusion Pixel", "PingFang SC", sans-serif;
   background:
     radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.96), transparent 20%),
     radial-gradient(circle at 88% 16%, rgba(255, 224, 235, 0.56), transparent 22%),
@@ -205,7 +215,7 @@ button {
 .settings-hero-kicker,
 .section-heading span,
 .unlock-copy {
-  font-family: "Fusion Pixel 12px M zh_hans", "Fusion Pixel 12px M latin", monospace;
+  font-family: "Fusion Pixel", monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
