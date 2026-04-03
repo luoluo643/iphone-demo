@@ -121,7 +121,7 @@ button {
 .phone-frame::before {
   content: "";
   position: absolute;
-  inset: 4px;
+  inset: 7px 4px 4px;
   border-radius: 40px;
   border: 1px solid rgba(255, 255, 255, 0.48);
   box-shadow:
